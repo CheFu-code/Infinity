@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "Infinity 2048",
+    "slug": "infinity-2048",
+    "scheme": "infinity2048",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "plugins": [
+      "expo-router",
+      "expo-asset"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
