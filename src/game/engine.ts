@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAchievements } from './achievements';
 import { getRandomEmptyCell, pickRandomTileValue } from './random';
 import { applyMove } from './moves';
-import { Board, Direction, GameSettings, GameSnapshot, GameState, PersistedState } from './types';
+import { Achievement, Board, Direction, GameSettings, GameSnapshot, GameState, PersistedState } from './types';
 
 const BOARD_SIZE = 4;
 const STORAGE_KEY = 'infinity-2048-state';
@@ -33,12 +34,12 @@ function getStatus(snapshot: GameSnapshot): GameState['status'] {
 export function createInitialGameState(): GameState {
   const board = createEmptyBoard();
   const firstCell = getRandomEmptyCell(board);
-  const secondCell = getRandomEmptyCell(board);
 
   if (firstCell) {
     board[firstCell.x][firstCell.y] = pickRandomTileValue();
   }
 
+  const secondCell = getRandomEmptyCell(board);
   if (secondCell) {
     board[secondCell.x][secondCell.y] = pickRandomTileValue();
   }
@@ -49,6 +50,7 @@ export function createInitialGameState(): GameState {
     ...snapshot,
     bestScore: 0,
     history: [],
+    achievements: getAchievements(0, false, false),
     status: getStatus(snapshot),
   };
 }
@@ -88,7 +90,6 @@ function hasAvailableMoves(board: Board): boolean {
 
   return false;
 }
-
 export function makeMove(state: GameState, direction: Direction): GameState {
   const previous = createSnapshot(cloneBoard(state.board), state.score, state.won, state.over, state.keepPlaying);
   const result = applyMove(state.board, direction);
@@ -105,7 +106,7 @@ export function makeMove(state: GameState, direction: Direction): GameState {
   }
 
   const nextScore = state.score + result.scoreGain;
-  const won = nextScore >= 2048 || nextBoard.some((row) => row.some((cell) => cell === 2048));
+  const won = nextBoard.some((row) => row.some((cell) => cell !== null && cell >= 2048));
   const over = !hasAvailableMoves(nextBoard);
   const keepPlaying = state.keepPlaying || false;
   const snapshot = createSnapshot(nextBoard, nextScore, won, over, keepPlaying);
@@ -114,6 +115,7 @@ export function makeMove(state: GameState, direction: Direction): GameState {
     ...snapshot,
     bestScore: Math.max(state.bestScore, nextScore),
     history: [previous, ...state.history].slice(0, 10),
+    achievements: getAchievements(nextScore, won, over),
     status: getStatus(snapshot),
   };
 }
@@ -128,6 +130,7 @@ export function undoMove(state: GameState): GameState {
     ...previous,
     bestScore: state.bestScore,
     history: state.history.slice(1),
+    achievements: state.achievements,
     status: getStatus(previous),
   };
 }
@@ -144,6 +147,7 @@ export function keepPlaying(state: GameState): GameState {
   return {
     ...state,
     keepPlaying: true,
+    achievements: getAchievements(state.score, state.won, state.over),
     status: 'playing',
   };
 }
@@ -153,14 +157,105 @@ export async function saveState(state: GameState, settings: GameSettings): Promi
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
 }
 
-export async function loadState(): Promise<PersistedState | null> {
-  const stored = await AsyncStorage.getItem(STORAGE_KEY);
-  if (!stored) {
+function isBoard(value: unknown): value is Board {
+  return (
+    Array.isArray(value) &&
+    value.length === BOARD_SIZE &&
+    value.every((row) => Array.isArray(row) && row.length === BOARD_SIZE && row.every((cell) => typeof cell === 'number' || cell === null))
+  );
+}
+
+function isGameSnapshot(value: unknown): value is GameSnapshot {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const candidate = value as Partial<GameSnapshot>;
+  return (
+    typeof candidate.score === 'number' &&
+    isBoard(candidate.board) &&
+    typeof candidate.won === 'boolean' &&
+    typeof candidate.over === 'boolean' &&
+    typeof candidate.keepPlaying === 'boolean'
+  );
+}
+
+function isAchievement(value: unknown): value is Achievement {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const candidate = value as Partial<Achievement>;
+  return (
+    typeof candidate.id === 'string' &&
+    typeof candidate.title === 'string' &&
+    typeof candidate.description === 'string' &&
+    typeof candidate.unlocked === 'boolean'
+  );
+}
+
+function normalizePersistedState(value: unknown): PersistedState | null {
+  if (!value || typeof value !== 'object') {
     return null;
   }
 
+  const candidate = value as Partial<PersistedState>;
+  if (!candidate.game || !candidate.settings) {
+    return null;
+  }
+
+  const game = candidate.game;
+  const settings = candidate.settings;
+
+  if (
+    typeof game.score !== 'number' ||
+    !isBoard(game.board) ||
+    typeof game.won !== 'boolean' ||
+    typeof game.over !== 'boolean' ||
+    typeof game.keepPlaying !== 'boolean' ||
+    typeof game.bestScore !== 'number' ||
+    !Array.isArray(game.history) ||
+    !game.history.every((entry) => isGameSnapshot(entry)) ||
+    (game.status !== 'idle' && game.status !== 'playing' && game.status !== 'won' && game.status !== 'over') ||
+    typeof settings.soundEnabled !== 'boolean' ||
+    typeof settings.vibrationEnabled !== 'boolean' ||
+    (settings.theme !== 'light' && settings.theme !== 'dark' && settings.theme !== 'system')
+  ) {
+    return null;
+  }
+
+  const achievements = Array.isArray(game.achievements)
+    ? game.achievements.every((entry) => isAchievement(entry))
+      ? game.achievements
+      : null
+    : game.achievements === undefined
+      ? getAchievements(game.score, game.won, game.over)
+      : null;
+
+  if (!achievements) {
+    return null;
+  }
+
+  return {
+    game: {
+      ...game,
+      achievements,
+    },
+    settings: {
+      ...settings,
+    },
+  };
+}
+
+export async function loadState(): Promise<PersistedState | null> {
   try {
-    return JSON.parse(stored) as PersistedState;
+    const stored = await AsyncStorage.getItem(STORAGE_KEY);
+    if (!stored) {
+      return null;
+    }
+
+    const parsed = JSON.parse(stored);
+    return normalizePersistedState(parsed);
   } catch {
     return null;
   }

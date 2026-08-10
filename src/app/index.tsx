@@ -1,6 +1,7 @@
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native';
+import { StyleSheet, Text, View, useColorScheme } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { Modal } from '../components/Modal';
@@ -26,22 +27,22 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={[styles.safeArea, isDark ? styles.darkBackground : styles.lightBackground]}>
       <View style={styles.container}>
-        <View style={styles.hero}>
+        <Animated.View entering={FadeInDown.duration(320)} style={styles.hero}>
           <Text style={[styles.title, isDark ? styles.darkText : styles.lightText]}>Infinity 2048</Text>
           <Text style={[styles.subtitle, isDark ? styles.mutedDarkText : styles.mutedLightText]}>A native mobile take on the classic tile-merging challenge.</Text>
-        </View>
+        </Animated.View>
 
-        <View style={styles.card}>
+        <Animated.View entering={FadeInDown.delay(120).duration(320)} style={[styles.card, isDark ? styles.darkCard : styles.lightCard]}>
           <Text style={[styles.scoreLabel, isDark ? styles.darkText : styles.lightText]}>High score</Text>
           <Text style={[styles.scoreValue, isDark ? styles.darkText : styles.lightText]}>{game.bestScore}</Text>
-        </View>
+        </Animated.View>
 
-        <View style={styles.actions}>
+        <Animated.View entering={FadeInDown.delay(220).duration(320)} style={styles.actions}>
           <Button label="Play" onPress={() => router.push('/game')} />
           <Button label="Continue" variant="secondary" onPress={() => router.push('/game')} disabled={!hasProgress} />
           <Button label="Settings" variant="ghost" onPress={() => router.push('/settings')} />
           <Button label="Stats" variant="ghost" onPress={() => setStatsVisible(true)} />
-        </View>
+        </Animated.View>
       </View>
 
       <Modal visible={statsVisible} title="Game stats" onClose={() => setStatsVisible(false)}>
@@ -69,7 +70,9 @@ const styles = StyleSheet.create({
   darkText: { color: '#f8fafc' },
   mutedLightText: { color: '#475569' },
   mutedDarkText: { color: '#94a3b8' },
-  card: { borderRadius: 24, padding: 20, alignItems: 'center', backgroundColor: '#ffffff22', borderWidth: 1, borderColor: '#ffffff44' },
+  card: { borderRadius: 24, padding: 20, alignItems: 'center', borderWidth: 1 },
+  lightCard: { backgroundColor: '#ffffff', borderColor: '#e2e8f0' },
+  darkCard: { backgroundColor: '#1f2937', borderColor: '#374151' },
   scoreLabel: { fontSize: 16, fontWeight: '600' },
   scoreValue: { fontSize: 30, fontWeight: '800' },
   actions: { gap: 12 },

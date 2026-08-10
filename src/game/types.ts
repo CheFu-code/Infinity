@@ -11,9 +11,17 @@ export interface GameSnapshot {
   keepPlaying: boolean;
 }
 
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  unlocked: boolean;
+}
+
 export interface GameState extends GameSnapshot {
   bestScore: number;
   history: GameSnapshot[];
+  achievements: Achievement[];
   status: 'idle' | 'playing' | 'won' | 'over';
 }
 

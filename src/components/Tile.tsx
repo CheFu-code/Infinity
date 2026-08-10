@@ -33,10 +33,15 @@ export const Tile = memo(function Tile({ value }: TileProps) {
   const scale = useSharedValue(0.86);
 
   useEffect(() => {
+    if (value === null) {
+      return;
+    }
+
+    opacity.value = 0;
+    scale.value = 0.86;
     opacity.value = withTiming(1, { duration: 180 });
     scale.value = withTiming(1, { duration: 180 });
-  }, [opacity, scale]);
-
+  }, [value, opacity, scale]);
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
     transform: [{ scale: scale.value }],

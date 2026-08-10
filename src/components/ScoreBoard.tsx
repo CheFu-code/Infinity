@@ -22,7 +22,7 @@ export function ScoreBoard({ score, bestScore }: ScoreBoardProps) {
 
 const styles = StyleSheet.create({
   container: { flexDirection: 'row', gap: 12 },
-  scoreBox: { flex: 1, borderRadius: 16, padding: 12, backgroundColor: '#ffffff', alignItems: 'center' },
+  scoreBox: { flex: 1, borderRadius: 16, padding: 12, backgroundColor: '#ffffff', alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
   label: { fontSize: 12, color: '#64748b', fontWeight: '600' },
   value: { fontSize: 22, color: '#0f172a', fontWeight: '800' },
 });
