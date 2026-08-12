@@ -3,9 +3,11 @@ import { StyleSheet, Text, View } from 'react-native';
 interface ScoreBoardProps {
   score: number;
   bestScore: number;
+  moveCount: number;
+  maxTile: number;
 }
 
-export function ScoreBoard({ score, bestScore }: ScoreBoardProps) {
+export function ScoreBoard({ score, bestScore, moveCount, maxTile }: ScoreBoardProps) {
   return (
     <View style={styles.container}>
       <View style={styles.scoreBox}>
@@ -15,6 +17,14 @@ export function ScoreBoard({ score, bestScore }: ScoreBoardProps) {
       <View style={styles.scoreBox}>
         <Text style={styles.label}>Best</Text>
         <Text style={styles.value}>{bestScore}</Text>
+      </View>
+      <View style={styles.scoreBox}>
+        <Text style={styles.label}>Moves</Text>
+        <Text style={styles.value}>{moveCount}</Text>
+      </View>
+      <View style={styles.scoreBox}>
+        <Text style={styles.label}>Highest tile</Text>
+        <Text style={styles.value}>{maxTile}</Text>
       </View>
     </View>
   );

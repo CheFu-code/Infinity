@@ -9,6 +9,8 @@ export interface GameSnapshot {
   won: boolean;
   over: boolean;
   keepPlaying: boolean;
+  moveCount: number;
+  maxTile: number;
 }
 
 export interface Achievement {

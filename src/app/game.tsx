@@ -65,7 +65,12 @@ export default function GameScreen() {
                     />
                 </Animated.View>
 
-                <ScoreBoard score={game.score} bestScore={game.bestScore} />
+                <ScoreBoard
+                    score={game.score}
+                    bestScore={game.bestScore}
+                    moveCount={game.moveCount}
+                    maxTile={game.maxTile}
+                />
 
                 <Animated.View entering={FadeInDown.delay(80).duration(260)} style={styles.boardCard}>
                     <Board onSwipe={move} />
@@ -95,18 +100,38 @@ export default function GameScreen() {
                 ) : null}
 
                 {game.status === "won" && !game.keepPlaying ? (
-                    <View style={styles.banner}>
-                        <Text style={styles.bannerText}>You reached 2048! Keep going?</Text>
-                        <Button label="Keep playing" onPress={continueAfterWin} />
-                    </View>
+                    <Modal visible title="Victory" onClose={() => undefined}>
+                        <View style={styles.modalContent}>
+                            <Text
+                                style={[
+                                    styles.modalText,
+                                    isDark ? styles.darkText : styles.lightText,
+                                ]}
+                            >
+                                You reached 2048! Keep playing to chase a higher tile.
+                            </Text>
+                            <View style={styles.modalActions}>
+                                <Button label="Keep playing" onPress={continueAfterWin} />
+                                <Button label="Restart" variant="secondary" onPress={restart} />
+                            </View>
+                        </View>
+                    </Modal>
                 ) : null}
 
                 {game.status === "over" ? (
-                    <View style={styles.banner}>
-                        <Text style={styles.bannerText}>
-                            No moves left — restart to try again.
-                        </Text>
-                    </View>
+                    <Modal visible title="Game Over" onClose={() => undefined}>
+                        <View style={styles.modalContent}>
+                            <Text
+                                style={[
+                                    styles.modalText,
+                                    isDark ? styles.darkText : styles.lightText,
+                                ]}
+                            >
+                                No moves left. Your best tile was {game.maxTile}.
+                            </Text>
+                            <Button label="Restart" onPress={restart} />
+                        </View>
+                    </Modal>
                 ) : null}
             </View>
 
@@ -168,5 +193,6 @@ const styles = StyleSheet.create({
     },
     bannerText: { fontSize: 16, fontWeight: "600", color: "#7c3aed" },
     modalContent: { gap: 12 },
+    modalActions: { flexDirection: 'row', gap: 12, justifyContent: 'space-between' },
     modalText: { fontSize: 16 },
 });

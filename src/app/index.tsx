@@ -23,6 +23,7 @@ export default function HomeScreen() {
 
   const isDark = resolvedTheme === 'dark';
   const hasProgress = game.score > 0 || game.board.some((row) => row.some((cell) => cell !== null));
+  const unlockedCount = game.achievements.filter((achievement) => achievement.unlocked).length;
 
   return (
     <SafeAreaView style={[styles.safeArea, isDark ? styles.darkBackground : styles.lightBackground]}>
@@ -49,6 +50,9 @@ export default function HomeScreen() {
         <View style={styles.modalContent}>
           <Text style={[styles.modalText, isDark ? styles.darkText : styles.lightText]}>Current score: {game.score}</Text>
           <Text style={[styles.modalText, isDark ? styles.darkText : styles.lightText]}>Best score: {game.bestScore}</Text>
+          <Text style={[styles.modalText, isDark ? styles.darkText : styles.lightText]}>Highest tile: {game.maxTile}</Text>
+          <Text style={[styles.modalText, isDark ? styles.darkText : styles.lightText]}>Moves taken: {game.moveCount}</Text>
+          <Text style={[styles.modalText, isDark ? styles.darkText : styles.lightText]}>Achievements unlocked: {unlockedCount}</Text>
           <Text style={[styles.modalText, isDark ? styles.darkText : styles.lightText]}>Status: {game.status}</Text>
           <Text style={[styles.modalText, isDark ? styles.darkText : styles.lightText]}>Sound: {settings.soundEnabled ? 'On' : 'Off'}</Text>
           <Text style={[styles.modalText, isDark ? styles.darkText : styles.lightText]}>Theme: {settings.theme}</Text>
