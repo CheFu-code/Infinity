@@ -43,7 +43,7 @@
     "android": {
       "package": "com.kurisani.infinity2048"
     },
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "extra": {
       "router": {
         "origin": false
