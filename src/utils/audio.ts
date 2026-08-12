@@ -1,30 +1,27 @@
-import { createAudioPlayer } from 'expo-audio';
+import { Audio } from 'expo-av';
 
 const mergeAsset = require('../assets/merge.wav');
 const winAsset = require('../assets/win.wav');
 
-export async function playMergeSound(): Promise<void> {
-  let player: ReturnType<typeof createAudioPlayer> | undefined;
-
+async function playSound(asset: any): Promise<void> {
   try {
-    player = createAudioPlayer(mergeAsset);
-    player.play();
+    const sound = new Audio.Sound();
+    // Load, play, and unload when finished. Fail silently if native module missing.
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    await sound.loadAsync(asset);
+    await sound.playAsync();
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if (status?.didJustFinish) void sound.unloadAsync();
+    });
   } catch {
-    // Ignore missing or unsupported assets and keep the app running.
-  } finally {
-    player?.remove();
+    // Ignore missing native modules or other audio failures to keep the app running.
   }
 }
 
-export async function playWinSound(): Promise<void> {
-  let player: ReturnType<typeof createAudioPlayer> | undefined;
+export async function playMergeSound(): Promise<void> {
+  await playSound(mergeAsset);
+}
 
-  try {
-    player = createAudioPlayer(winAsset);
-    player.play();
-  } catch {
-    // Ignore missing or unsupported assets and keep the app running.
-  } finally {
-    player?.remove();
-  }
+export async function playWinSound(): Promise<void> {
+  await playSound(winAsset);
 }

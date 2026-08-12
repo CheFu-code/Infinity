@@ -63,7 +63,7 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x android/gradlew
 
-      - name: Build Android release artifacts
+      - name: Build Android release apk
         working-directory: android
         shell: bash
         run: |

@@ -1,5 +1,5 @@
 {
-  "name": "infinity-2048",
+  "name": "infinity",
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
@@ -14,6 +14,7 @@
     "expo": "~52.0.0",
     "expo-asset": "~11.0.5",
     "expo-audio": "~0.3.0",
+    "expo-av": "~15.0.2",
     "expo-constants": "~17.0.8",
     "expo-haptics": "~14.0.0",
     "expo-linking": "~7.0.5",
