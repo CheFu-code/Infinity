@@ -5,9 +5,10 @@ interface ButtonProps {
     onPress?: () => void;
     variant?: 'primary' | 'secondary' | 'ghost';
     disabled?: boolean;
+    themeMode?: 'light' | 'dark';
 }
 
-export function Button({ label, onPress, variant = 'primary', disabled = false }: ButtonProps) {
+export function Button({ label, onPress, variant = 'primary', disabled = false, themeMode = 'light' }: ButtonProps) {
     return (
         <Pressable
             onPress={onPress}
@@ -24,7 +25,7 @@ export function Button({ label, onPress, variant = 'primary', disabled = false }
             <Text style={[
                 styles.text,
                 variant === 'secondary' && styles.secondaryText,
-                variant === 'ghost' && styles.ghostText,
+                variant === 'ghost' && (themeMode === 'dark' ? styles.ghostDarkText : styles.ghostText),
             ]}>{label}</Text>
         </Pressable>
     );
@@ -38,5 +39,7 @@ const styles = StyleSheet.create({
     disabled: { opacity: 0.5 },
     pressed: { transform: [{ scale: 0.98 }] },
     text: { color: '#ffffff', fontWeight: '700' },
-    secondaryText: { color: '#334155' }, ghostText: { color: '#334155' },
+    secondaryText: { color: '#334155' },
+    ghostText: { color: '#334155' },
+    ghostDarkText: { color: '#f8fafc' },
 });

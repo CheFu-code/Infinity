@@ -34,12 +34,12 @@ function createSnapshot(
 }
 
 function getStatus(snapshot: GameSnapshot): GameState['status'] {
-  if (snapshot.over) {
-    return 'over';
-  }
-
   if (snapshot.won && !snapshot.keepPlaying) {
     return 'won';
+  }
+
+  if (snapshot.over) {
+    return 'over';
   }
 
   return 'playing';
@@ -65,7 +65,7 @@ export function createInitialGameState(): GameState {
     ...snapshot,
     bestScore: 0,
     history: [],
-    achievements: getAchievements(0, false, false, 0, initialMaxTile),
+    achievements: getAchievements(0, false, false, 0, initialMaxTile, false),
     status: getStatus(snapshot),
   };
 }
@@ -106,6 +106,10 @@ function hasAvailableMoves(board: Board): boolean {
   return false;
 }
 export function makeMove(state: GameState, direction: Direction): GameState {
+  if (state.won && !state.keepPlaying) {
+    return state;
+  }
+
   const previous = createSnapshot(
     cloneBoard(state.board),
     state.score,
@@ -141,7 +145,7 @@ export function makeMove(state: GameState, direction: Direction): GameState {
     bestScore: Math.max(state.bestScore, nextScore),
     // Keep full history to allow unlimited undos (may increase memory usage).
     history: [previous, ...state.history],
-    achievements: getAchievements(nextScore, won, over, nextMoveCount, nextMaxTile),
+    achievements: getAchievements(nextScore, won, over, nextMoveCount, nextMaxTile, keepPlaying),
     status: getStatus(snapshot),
   };
 }
@@ -156,7 +160,7 @@ export function undoMove(state: GameState): GameState {
     ...previous,
     bestScore: state.bestScore,
     history: state.history.slice(1),
-    achievements: state.achievements,
+    achievements: getAchievements(previous.score, previous.won, previous.over, previous.moveCount, previous.maxTile, previous.keepPlaying),
     status: getStatus(previous),
   };
 }
@@ -173,7 +177,7 @@ export function keepPlaying(state: GameState): GameState {
   return {
     ...state,
     keepPlaying: true,
-    achievements: getAchievements(state.score, state.won, state.over, state.moveCount, state.maxTile),
+    achievements: getAchievements(state.score, state.won, state.over, state.moveCount, state.maxTile, true),
     status: 'playing',
   };
 }
@@ -259,7 +263,7 @@ function normalizePersistedState(value: unknown): PersistedState | null {
       ? game.achievements
       : null
     : game.achievements === undefined
-      ? getAchievements(game.score, game.won, game.over, game.moveCount ?? 0, game.maxTile ?? 0)
+      ? getAchievements(game.score, game.won, game.over, game.moveCount ?? 0, game.maxTile ?? 0, game.keepPlaying ?? false)
       : null;
 
   if (!achievements) {

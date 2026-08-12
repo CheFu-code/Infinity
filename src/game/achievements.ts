@@ -6,6 +6,7 @@ export function getAchievements(
     over: boolean,
     moveCount: number,
     maxTile: number,
+    keepPlaying: boolean,
 ): Achievement[] {
     const achievements: Achievement[] = [
         {
@@ -60,7 +61,7 @@ export function getAchievements(
             id: "survivor",
             title: "Survivor",
             description: "Win the game and keep going.",
-            unlocked: won,
+            unlocked: won && keepPlaying,
         },
     ];
 

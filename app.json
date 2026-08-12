@@ -21,7 +21,7 @@
             "typedRoutes": true
         },
         "android": {
-            "package": "com.chefu.infinity"
+            "package": "com.kurisani.infinity2048"
         },
         "newArchEnabled": true
     }

@@ -6,16 +6,25 @@ interface ModalProps {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  theme?: 'light' | 'dark';
+  dismissible?: boolean;
 }
 
-export function Modal({ visible, title, onClose, children }: ModalProps) {
+export function Modal({ visible, title, onClose, children, theme, dismissible = true }: ModalProps) {
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const isDark = theme ? theme === 'dark' : colorScheme === 'dark';
+  const handleClose = dismissible ? onClose : undefined;
 
   return (
-    <RNModal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
+    <RNModal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={handleClose}
+      statusBarTranslucent
+    >
       <View style={styles.root}>
-        <Pressable style={styles.backdrop} onPress={onClose}>
+        <Pressable style={styles.backdrop} onPress={handleClose}>
         <Pressable
           style={[
             styles.card,
@@ -25,9 +34,11 @@ export function Modal({ visible, title, onClose, children }: ModalProps) {
         >
           <View style={styles.header}>
             <Text style={[styles.title, isDark ? styles.titleDark : styles.titleLight]}>{title}</Text>
-            <Pressable onPress={onClose} hitSlop={8} style={styles.closeButton}>
-              <Text style={[styles.close, isDark ? styles.closeDark : styles.closeLight]}>✕</Text>
-            </Pressable>
+            {dismissible ? (
+              <Pressable onPress={onClose} hitSlop={8} style={styles.closeButton}>
+                <Text style={[styles.close, isDark ? styles.closeDark : styles.closeLight]}>✕</Text>
+              </Pressable>
+            ) : null}
           </View>
           <View style={styles.content}>{children}</View>
         </Pressable>

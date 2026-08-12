@@ -97,6 +97,7 @@ export default function SettingsScreen() {
                 visible={confirmReset}
                 title="Reset progress"
                 onClose={() => setConfirmReset(false)}
+                theme={resolvedTheme}
             >
                 <View style={styles.modalContent}>
                     <Text

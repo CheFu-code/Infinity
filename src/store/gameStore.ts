@@ -39,7 +39,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const updatedGame = next !== previousGame ? next : previousGame;
         set({ game: updatedGame });
 
-        if (updatedGame !== previousGame && settings.soundEnabled) {
+        if (updatedGame.score > previousGame.score && settings.soundEnabled) {
             void playMergeSound();
         }
 

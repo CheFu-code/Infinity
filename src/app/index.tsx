@@ -154,6 +154,7 @@ export default function HomeScreen() {
                             <Button
                                 label="Stats"
                                 variant="ghost"
+                                themeMode={resolvedTheme}
                                 onPress={() => setStatsVisible(true)}
                             />
                         </View>
@@ -163,6 +164,7 @@ export default function HomeScreen() {
                         <Button
                             label="Settings"
                             variant="ghost"
+                            themeMode={resolvedTheme}
                             onPress={() => router.push('/settings')}
                         />
                     </View>
@@ -191,6 +193,7 @@ export default function HomeScreen() {
                 visible={statsVisible}
                 title="Game statistics"
                 onClose={() => setStatsVisible(false)}
+                theme={resolvedTheme}
             >
                 <View style={styles.modalContent}>
                     <StatRow

@@ -56,7 +56,7 @@ export default function GameScreen() {
                     <Text
                         style={[styles.title, isDark ? styles.darkText : styles.lightText]}
                     >
-                        Play
+                        Infinity
                     </Text>
                     {/**TODO: Add login functionality to save users history even when logged in on new device */}
                     {/* <Button label="Login" onPress={restart} /> */}
@@ -103,7 +103,7 @@ export default function GameScreen() {
                 ) : null}
 
                 {game.status === "won" && !game.keepPlaying ? (
-                    <Modal visible title="Victory" onClose={() => undefined}>
+                    <Modal visible title="Victory" onClose={() => undefined} dismissible={false} theme={resolvedTheme}>
                         <View style={styles.modalContent}>
                             <Text
                                 style={[
@@ -122,7 +122,7 @@ export default function GameScreen() {
                 ) : null}
 
                 {game.status === "over" ? (
-                    <Modal visible title="Game Over" onClose={() => undefined}>
+                    <Modal visible title="Game Over" onClose={() => undefined} dismissible={false} theme={resolvedTheme}>
                         <View style={styles.modalContent}>
                             <Text
                                 style={[
@@ -138,7 +138,7 @@ export default function GameScreen() {
                 ) : null}
             </View>
 
-            <Modal visible={paused} title="Paused" onClose={() => setPaused(false)}>
+            <Modal visible={paused} title="Paused" onClose={() => setPaused(false)} theme={resolvedTheme}>
                 <View style={styles.modalContent}>
                     <Text
                         style={[
