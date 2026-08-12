@@ -39,28 +39,3 @@ allprojects {
         maven { url 'https://www.jitpack.io' }
     }
 }
-
-// Apply JVM target compatibility to subprojects AFTER evaluation
-subprojects {
-    afterEvaluate {
-        // Configure Kotlin compiler target
-        if (plugins.hasPlugin('org.jetbrains.kotlin.android') || 
-            plugins.hasPlugin('org.jetbrains.kotlin.jvm')) {
-            tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-                kotlinOptions {
-                    jvmTarget = '17'
-                }
-            }
-        }
-        
-        // Configure Java compiler target
-        if (plugins.hasPlugin('com.android.application') || 
-            plugins.hasPlugin('com.android.library') ||
-            plugins.hasPlugin('java')) {
-            tasks.withType(JavaCompile).configureEach {
-                sourceCompatibility = '17'
-                targetCompatibility = '17'
-            }
-        }
-    }
-}
