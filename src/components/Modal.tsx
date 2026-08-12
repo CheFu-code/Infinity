@@ -13,7 +13,7 @@ interface ModalProps {
 export function Modal({ visible, title, onClose, children, theme, dismissible = true }: ModalProps) {
   const colorScheme = useColorScheme();
   const isDark = theme ? theme === 'dark' : colorScheme === 'dark';
-  const handleClose = dismissible ? onClose : undefined;
+  const handleClose = dismissible ? onClose : () => undefined;
 
   return (
     <RNModal
@@ -24,7 +24,7 @@ export function Modal({ visible, title, onClose, children, theme, dismissible = 
       statusBarTranslucent
     >
       <View style={styles.root}>
-        <Pressable style={styles.backdrop} onPress={handleClose}>
+        <Pressable style={styles.backdrop} onPress={dismissible ? onClose : undefined}>
         <Pressable
           style={[
             styles.card,
