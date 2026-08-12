@@ -39,3 +39,19 @@ allprojects {
         maven { url 'https://www.jitpack.io' }
     }
 }
+
+// Expo modules can declare Java 17 while retaining Kotlin's historical
+// default of 11. Register these task conventions during configuration so
+// both compiler tasks use the JDK required by React Native.
+subprojects {
+    tasks.withType(JavaCompile).configureEach {
+        sourceCompatibility = '17'
+        targetCompatibility = '17'
+    }
+
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            jvmTarget = '17'
+        }
+    }
+}
