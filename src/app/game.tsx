@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { StyleSheet, Text, View, useColorScheme } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -7,13 +7,23 @@ import { Board } from "../components/Board";
 import { Button } from "../components/Button";
 import { Modal } from "../components/Modal";
 import { ScoreBoard } from "../components/ScoreBoard";
+import { Banner } from "../components/BannerAd";
+import { RewardedAdComponent } from "../components/RewardedAdComponent";
 import { useGame } from "../hooks/useGame";
+import { initializeAdMob } from "../utils/admob";
 
 export default function GameScreen() {
     const colorScheme = useColorScheme();
     const { game, settings, isHydrated, move, undo, restart, continueAfterWin } =
         useGame();
     const [paused, setPaused] = useState(false);
+    const [showRewardedAd, setShowRewardedAd] = useState(false);
+    const [undoCount, setUndoCount] = useState(0);
+
+    // Initialize AdMob on component mount
+    useEffect(() => {
+        initializeAdMob();
+    }, []);
 
     const resolvedTheme = useMemo(() => {
         if (settings.theme === "system") {
@@ -85,7 +95,15 @@ export default function GameScreen() {
                     <Button
                         label="Undo"
                         variant="secondary"
-                        onPress={undo}
+                        onPress={() => {
+                            undo();
+                            setUndoCount(prev => prev + 1);
+                            // Show rewarded ad after 3 undos
+                            if (undoCount >= 2) {
+                                setShowRewardedAd(true);
+                                setUndoCount(0);
+                            }
+                        }}
                         disabled={game.history.length === 0}
                     />
                 </View>
@@ -186,6 +204,20 @@ export default function GameScreen() {
                     <Button label="Resume" onPress={() => setPaused(false)} />
                 </View>
             </Modal>
+
+            {/* Banner Ad */}
+            <Banner isDark={isDark} />
+
+            {/* Rewarded Ad */}
+            <RewardedAdComponent
+                visible={showRewardedAd}
+                onRewardEarned={(reward) => {
+                    console.log('Reward earned, granting extra undo');
+                    // Grant extra undo or bonus
+                }}
+                onClose={() => setShowRewardedAd(false)}
+                isDark={isDark}
+            />
         </SafeAreaView>
     );
 }

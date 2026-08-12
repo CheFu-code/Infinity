@@ -28,7 +28,14 @@
       "expo-router",
       "expo-asset",
       "expo-font",
-      "expo-updates"
+      "expo-updates",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-8952058057579255~5804416438",
+          "iosAppId": "ca-app-pub-xxxxxxxxxxxxxxxx"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

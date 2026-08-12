@@ -8,6 +8,8 @@ interface GameStore {
     game: GameState;
     settings: GameSettings;
     isHydrated: boolean;
+    undoPressCount: number;
+    showRewardedAd: boolean;
     initialize: () => Promise<void>;
     move: (direction: Direction) => void;
     undo: () => void;
@@ -17,12 +19,16 @@ interface GameStore {
     toggleVibration: () => void;
     setTheme: (theme: GameSettings['theme']) => void;
     resetProgress: () => Promise<void>;
+    resetUndoCount: () => void;
+    dismissRewardedAd: () => void;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
     game: createInitialGameState(),
     settings: createDefaultSettings(),
     isHydrated: false,
+    undoPressCount: 0,
+    showRewardedAd: false,
     initialize: async () => {
         const persisted = await loadState();
         if (persisted) {
@@ -37,7 +43,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const settings = get().settings;
         const next = makeMove(previousGame, direction);
         const updatedGame = next !== previousGame ? next : previousGame;
-        set({ game: updatedGame });
+        set({ game: updatedGame, undoPressCount: 0 }); // Reset undo count on move
 
         if (updatedGame.score > previousGame.score && settings.soundEnabled) {
             void playMergeSound();
@@ -55,12 +61,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
     },
     undo: () => {
         const next = undoMove(get().game);
-        set({ game: next });
+        const newUndoCount = get().undoPressCount + 1;
+        
+        set({ game: next, undoPressCount: newUndoCount });
+        
+        // Show rewarded ad after 3 undo presses
+        if (newUndoCount > 3 && !get().showRewardedAd) {
+            set({ showRewardedAd: true });
+        }
+        
         void saveState(next, get().settings);
     },
     restart: () => {
         const next = restartGame(get().game);
-        set({ game: next });
+        set({ game: next, undoPressCount: 0 }); // Reset undo count on restart
         void saveState(next, get().settings);
     },
     continueAfterWin: () => {
@@ -86,6 +100,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     resetProgress: async () => {
         await clearProgress();
         const initial = createInitialGameState();
-        set({ game: initial });
+        set({ game: initial, undoPressCount: 0 });
+    },
+    resetUndoCount: () => {
+        set({ undoPressCount: 0 });
+    },
+    dismissRewardedAd: () => {
+        set({ showRewardedAd: false });
     },
 }));
