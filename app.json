@@ -12,10 +12,17 @@
         "assetBundlePatterns": [
             "**/*"
         ],
+        "icon": "src/assets/infinity.png",
+        "updates": {
+            "enabled": true,
+            "checkAutomatically": "ON_LOAD",
+            "fallbackToCacheTimeout": 0
+        },
         "plugins": [
             "expo-router",
             "expo-asset",
-            "expo-font"
+            "expo-font",
+            "expo-updates"
         ],
         "experiments": {
             "typedRoutes": true
