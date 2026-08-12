@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Infinity 2048",
-    "slug": "infinity-2048",
-    "scheme": "infinity2048",
+    "name": "Infinity",
+    "slug": "infinity",
+    "scheme": "infinity",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "platforms": [
@@ -20,7 +20,7 @@
       "typedRoutes": true
     },
     "android": {
-      "package": "com.kurisani.infinity2048"
+      "package": "com.chefu.infinity"
     }
   }
 }

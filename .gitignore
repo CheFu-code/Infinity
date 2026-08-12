@@ -11,3 +11,5 @@ expo-env.d.ts
 # Android signing artifacts
 android/app/*.keystore
 android/app/*.jks
+
+upload.keystore
