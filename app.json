@@ -32,8 +32,7 @@
       "typedRoutes": true
     },
     "android": {
-      "package": "com.kurisani.infinity2048",
-      "runtimeVersion": "1.0.0"
+      "package": "com.kurisani.infinity2048"
     },
     "newArchEnabled": true,
     "extra": {

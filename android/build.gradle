@@ -39,3 +39,24 @@ allprojects {
         maven { url 'https://www.jitpack.io' }
     }
 }
+
+// Apply Java toolchain to all subprojects after evaluation
+subprojects {
+    afterEvaluate {
+        // Configure toolchain for projects with Java or Kotlin compilation
+        if (plugins.hasPlugin('com.android.application') || 
+            plugins.hasPlugin('com.android.library') ||
+            plugins.hasPlugin('java') ||
+            plugins.hasPlugin('org.jetbrains.kotlin.android') ||
+            plugins.hasPlugin('org.jetbrains.kotlin.jvm')) {
+            
+            if (extensions.findByName('java') != null) {
+                java {
+                    toolchain {
+                        languageVersion = JavaLanguageVersion.of(17)
+                    }
+                }
+            }
+        }
+    }
+}
