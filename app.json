@@ -1,35 +1,51 @@
 {
-    "expo": {
-        "name": "Infinity",
-        "slug": "infinity",
-        "scheme": "infinity",
-        "orientation": "portrait",
-        "userInterfaceStyle": "automatic",
-        "platforms": [
-            "ios",
-            "android"
-        ],
-        "assetBundlePatterns": [
-            "**/*"
-        ],
-        "icon": "src/assets/infinity.png",
-        "updates": {
-            "enabled": true,
-            "checkAutomatically": "ON_LOAD",
-            "fallbackToCacheTimeout": 0
-        },
-        "plugins": [
-            "expo-router",
-            "expo-asset",
-            "expo-font",
-            "expo-updates"
-        ],
-        "experiments": {
-            "typedRoutes": true
-        },
-        "android": {
-            "package": "com.kurisani.infinity2048"
-        },
-        "newArchEnabled": true
+  "expo": {
+    "name": "Infinity",
+    "slug": "infinity",
+    "scheme": "infinity",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "icon": "src/assets/infinity.png",
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/3f9617ae-4c7d-430e-8a22-48902524e2bf"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-asset",
+      "expo-font",
+      "expo-updates"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "android": {
+      "package": "com.kurisani.infinity2048",
+      "runtimeVersion": "1.0.0"
+    },
+    "newArchEnabled": true,
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "3f9617ae-4c7d-430e-8a22-48902524e2bf"
+      }
+    },
+    "owner": "chefu",
+    "ios": {
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     }
+  }
 }
