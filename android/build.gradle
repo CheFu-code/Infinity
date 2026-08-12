@@ -40,9 +40,9 @@ allprojects {
     }
 }
 
-// Apply Java toolchain to all subprojects after evaluation
-subprojects {
-    afterEvaluate {
+// Apply Java toolchain to all subprojects using projectsEvaluated hook
+gradle.projectsEvaluated {
+    allprojects {
         // Configure toolchain for projects with Java or Kotlin compilation
         if (plugins.hasPlugin('com.android.application') || 
             plugins.hasPlugin('com.android.library') ||
