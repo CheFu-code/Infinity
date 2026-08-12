@@ -58,11 +58,7 @@ export default function GameScreen() {
                     >
                         Play
                     </Text>
-                    <Button
-                        label="Pause"
-                        variant="secondary"
-                        onPress={() => setPaused(true)}
-                    />
+
                 </Animated.View>
 
                 <ScoreBoard

@@ -139,7 +139,8 @@ export function makeMove(state: GameState, direction: Direction): GameState {
   return {
     ...snapshot,
     bestScore: Math.max(state.bestScore, nextScore),
-    history: [previous, ...state.history].slice(0, 10),
+    // Keep full history to allow unlimited undos (may increase memory usage).
+    history: [previous, ...state.history],
     achievements: getAchievements(nextScore, won, over, nextMoveCount, nextMaxTile),
     status: getStatus(snapshot),
   };
