@@ -41,7 +41,7 @@ export default function HomeScreen() {
         surface: isDark ? '#141416' : '#FFFFFF',
         surfaceElevated: isDark ? '#1C1C20' : '#FFFFFF',
         text: isDark ? '#FAFAFA' : '#111113',
-        muted: isDark ? '#A1A1AA' : '#71717A',
+        muted: isDark ? '#D1D5DB' : '#71717A',
         subtle: isDark ? '#52525B' : '#A1A1AA',
         border: isDark ? '#27272A' : '#E4E4E7',
         accent: '#7C3AED',
@@ -259,6 +259,10 @@ function StatRow({
         border: string;
     };
 }) {
+    const isSurfaceLight = theme && (theme as any).surface === '#FFFFFF';
+    const labelColor = isSurfaceLight ? '#0f172a' : theme.muted;
+    const valueColor = isSurfaceLight ? '#0f172a' : theme.text;
+
     return (
         <View
             style={[
@@ -266,11 +270,11 @@ function StatRow({
                 { borderBottomColor: theme.border },
             ]}
         >
-            <Text style={[styles.statLabel, { color: theme.muted }]}>
+            <Text style={[styles.statLabel, { color: labelColor }]}> 
                 {label}
             </Text>
 
-            <Text style={[styles.statValue, { color: theme.text }]}>
+            <Text style={[styles.statValue, { color: valueColor }]}> 
                 {value}
             </Text>
         </View>

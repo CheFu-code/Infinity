@@ -1,27 +1,28 @@
 {
-  "expo": {
-    "name": "Infinity",
-    "slug": "infinity",
-    "scheme": "infinity",
-    "orientation": "portrait",
-    "userInterfaceStyle": "automatic",
-    "platforms": [
-      "ios",
-      "android"
-    ],
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "plugins": [
-      "expo-router",
-      "expo-asset",
-      "expo-font"
-    ],
-    "experiments": {
-      "typedRoutes": true
-    },
-    "android": {
-      "package": "com.chefu.infinity"
+    "expo": {
+        "name": "Infinity",
+        "slug": "infinity",
+        "scheme": "infinity",
+        "orientation": "portrait",
+        "userInterfaceStyle": "automatic",
+        "platforms": [
+            "ios",
+            "android"
+        ],
+        "assetBundlePatterns": [
+            "**/*"
+        ],
+        "plugins": [
+            "expo-router",
+            "expo-asset",
+            "expo-font"
+        ],
+        "experiments": {
+            "typedRoutes": true
+        },
+        "android": {
+            "package": "com.chefu.infinity"
+        },
+        "newArchEnabled": true
     }
-  }
 }

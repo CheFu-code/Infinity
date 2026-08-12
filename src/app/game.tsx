@@ -58,7 +58,8 @@ export default function GameScreen() {
                     >
                         Play
                     </Text>
-
+                    {/**TODO: Add login functionality to save users history even when logged in on new device */}
+                    {/* <Button label="Login" onPress={restart} /> */}
                 </Animated.View>
 
                 <ScoreBoard
@@ -68,7 +69,13 @@ export default function GameScreen() {
                     maxTile={game.maxTile}
                 />
 
-                <Animated.View entering={FadeInDown.delay(80).duration(260)} style={styles.boardCard}>
+                <Animated.View
+                    entering={FadeInDown.delay(80).duration(260)}
+                    style={[
+                        styles.boardCard,
+                        isDark ? { backgroundColor: '#111827' } : { backgroundColor: '#ffffff' },
+                    ]}
+                >
                     <Board onSwipe={move} />
                 </Animated.View>
 
