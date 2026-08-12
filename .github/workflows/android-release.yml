@@ -68,7 +68,7 @@ jobs:
         shell: bash
         run: |
           ./gradlew assembleRelease \
-            -PMYAPP_UPLOAD_STORE_FILE=app/upload.keystore \
+            -PMYAPP_UPLOAD_STORE_FILE=upload.keystore \
             -PMYAPP_UPLOAD_STORE_PASSWORD="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
             -PMYAPP_UPLOAD_KEY_ALIAS="${{ secrets.ANDROID_KEY_ALIAS }}" \
             -PMYAPP_UPLOAD_KEY_PASSWORD="${{ secrets.ANDROID_KEY_PASSWORD }}"
