@@ -22,15 +22,20 @@ export function Modal({ visible, title, onClose, children, theme, dismissible = 
       animationType="fade"
       onRequestClose={handleClose}
       statusBarTranslucent
+      hardwareAccelerated
     >
-      <View style={styles.root}>
-        <Pressable style={styles.backdrop} onPress={dismissible ? onClose : undefined}>
+      <View style={styles.root} accessibilityViewIsModal>
         <Pressable
+          style={styles.backdrop}
+          onPress={dismissible ? onClose : undefined}
+          accessibilityRole={dismissible ? 'button' : undefined}
+          accessibilityLabel={dismissible ? 'Close dialog' : undefined}
+        />
+        <View
           style={[
             styles.card,
             isDark ? styles.cardDark : styles.cardLight,
           ]}
-          onPress={() => undefined}
         >
           <View style={styles.header}>
             <Text style={[styles.title, isDark ? styles.titleDark : styles.titleLight]}>{title}</Text>
@@ -41,17 +46,16 @@ export function Modal({ visible, title, onClose, children, theme, dismissible = 
             ) : null}
           </View>
           <View style={styles.content}>{children}</View>
-        </Pressable>
-        </Pressable>
+        </View>
       </View>
     </RNModal>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
-  backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: '#00000066' },
-  card: { alignSelf: 'center', width: '86%', maxWidth: 420, borderRadius: 20, padding: 18 },
+  root: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
+  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: '#00000066' },
+  card: { width: '100%', maxWidth: 420, borderRadius: 20, padding: 20, elevation: 12, shadowColor: '#000', shadowOpacity: 0.24, shadowRadius: 24, shadowOffset: { width: 0, height: 12 } },
   cardLight: { backgroundColor: '#ffffff' },
   cardDark: { backgroundColor: '#0b1220' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },

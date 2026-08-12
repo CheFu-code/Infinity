@@ -2,6 +2,7 @@
   "expo": {
     "name": "Infinity",
     "slug": "infinity",
+    "version": "1.0.0",
     "scheme": "infinity",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
@@ -22,9 +23,7 @@
         "expo-channel-name": "production"
       }
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "plugins": [
       "expo-router",
       "expo-asset",
@@ -46,11 +45,6 @@
         "projectId": "3f9617ae-4c7d-430e-8a22-48902524e2bf"
       }
     },
-    "owner": "chefu",
-    "ios": {
-      "runtimeVersion": {
-        "policy": "appVersion"
-      }
-    }
+    "owner": "chefu"
   }
 }

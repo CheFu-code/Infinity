@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { StyleSheet, Text, View, useColorScheme } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Board } from "../components/Board";
@@ -123,16 +124,50 @@ export default function GameScreen() {
 
                 {game.status === "over" ? (
                     <Modal visible title="Game Over" onClose={() => undefined} dismissible={false} theme={resolvedTheme}>
-                        <View style={styles.modalContent}>
+                        <View style={styles.gameOverContent}>
+                            <View
+                                style={[
+                                    styles.gameOverIcon,
+                                    isDark ? styles.gameOverIconDark : styles.gameOverIconLight,
+                                ]}
+                            >
+                                <Ionicons name="refresh-outline" size={30} color="#7c3aed" />
+                            </View>
                             <Text
                                 style={[
-                                    styles.modalText,
+                                    styles.gameOverText,
                                     isDark ? styles.darkText : styles.lightText,
                                 ]}
                             >
                                 No moves left. Your best tile was {game.maxTile}.
                             </Text>
-                            <Button label="Restart" onPress={restart} />
+                            <View
+                                style={[
+                                    styles.gameOverSummary,
+                                    isDark ? styles.gameOverSummaryDark : styles.gameOverSummaryLight,
+                                ]}
+                            >
+                                <View style={styles.gameOverMetric}>
+                                    <Text style={[styles.gameOverMetricLabel, isDark ? styles.mutedDarkText : styles.mutedLightText]}>
+                                        FINAL SCORE
+                                    </Text>
+                                    <Text style={[styles.gameOverMetricValue, isDark ? styles.darkText : styles.lightText]}>
+                                        {game.score.toLocaleString()}
+                                    </Text>
+                                </View>
+                                <View style={[styles.gameOverDivider, isDark ? styles.gameOverDividerDark : styles.gameOverDividerLight]} />
+                                <View style={styles.gameOverMetric}>
+                                    <Text style={[styles.gameOverMetricLabel, isDark ? styles.mutedDarkText : styles.mutedLightText]}>
+                                        BEST TILE
+                                    </Text>
+                                    <Text style={[styles.gameOverMetricValue, isDark ? styles.darkText : styles.lightText]}>
+                                        {game.maxTile.toLocaleString()}
+                                    </Text>
+                                </View>
+                            </View>
+                            <View style={styles.gameOverAction}>
+                                <Button label="Play again" onPress={restart} />
+                            </View>
                         </View>
                     </Modal>
                 ) : null}
@@ -197,5 +232,20 @@ const styles = StyleSheet.create({
     bannerText: { fontSize: 16, fontWeight: "600", color: "#7c3aed" },
     modalContent: { gap: 12 },
     modalActions: { flexDirection: 'row', gap: 12, justifyContent: 'space-between' },
-    modalText: { fontSize: 16 },
+    modalText: { fontSize: 16, lineHeight: 24 },
+    gameOverContent: { alignItems: "center", gap: 18 },
+    gameOverIcon: { width: 64, height: 64, borderRadius: 32, alignItems: "center", justifyContent: "center" },
+    gameOverIconLight: { backgroundColor: "#f1eafe" },
+    gameOverIconDark: { backgroundColor: "#2e1a4d" },
+    gameOverText: { fontSize: 16, lineHeight: 24, textAlign: "center" },
+    gameOverSummary: { width: "100%", flexDirection: "row", borderRadius: 16, padding: 16, borderWidth: 1 },
+    gameOverSummaryLight: { backgroundColor: "#f8fafc", borderColor: "#e2e8f0" },
+    gameOverSummaryDark: { backgroundColor: "#111827", borderColor: "#334155" },
+    gameOverMetric: { flex: 1, alignItems: "center", gap: 4 },
+    gameOverMetricLabel: { fontSize: 10, fontWeight: "800", letterSpacing: 0.8 },
+    gameOverMetricValue: { fontSize: 22, fontWeight: "800" },
+    gameOverDivider: { width: StyleSheet.hairlineWidth, alignSelf: "stretch", marginHorizontal: 8 },
+    gameOverDividerLight: { backgroundColor: "#e2e8f0" },
+    gameOverDividerDark: { backgroundColor: "#334155" },
+    gameOverAction: { width: "100%" },
 });
