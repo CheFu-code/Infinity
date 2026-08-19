@@ -176,7 +176,7 @@ jobs:
         shell: bash
         run: |
           echo "========================================"
-          echo "Google Mobile Ads source directories"
+          echo "Google Mobile Ads source files"
           echo "========================================"
 
           find node_modules/react-native-google-mobile-ads \
@@ -194,39 +194,35 @@ jobs:
             \( -name "*Spec.ts" -o -name "*Spec.tsx" -o -name "*Native*.ts" -o -name "*Native*.tsx" \) \
             | sort
 
-      - name: Run React Native Codegen directly
+      - name: Check React Native Codegen version
         shell: bash
         run: |
           echo "========================================"
-          echo "React Native Codegen"
+          echo "React Native Codegen version"
           echo "========================================"
 
           node -e "
             console.log(
-              require.resolve(
-                'react-native/scripts/generate-codegen-artifacts.js'
-              )
+              require('@react-native/codegen/package.json').version
             );
           "
 
-          echo "========================================"
-          echo "Codegen help"
-          echo "========================================"
-
-          node node_modules/react-native/scripts/generate-codegen-artifacts.js \
-            --help
-
-      - name: Generate React Native Codegen artifacts directly
+      - name: Test Google Mobile Ads Codegen
+        working-directory: android
         shell: bash
         run: |
           echo "========================================"
-          echo "Generating Codegen artifacts"
+          echo "Testing Google Mobile Ads Codegen"
           echo "========================================"
 
-          node node_modules/react-native/scripts/generate-codegen-artifacts.js \
-            --path . \
-            --targetPlatform android \
-            --outputPath android/build/generated/codegen
+          ./gradlew :react-native-google-mobile-ads:generateCodegenSchemaFromJavaScript \
+            --stacktrace \
+            --console=plain \
+            -PMYAPP_UPLOAD_STORE_FILE=upload.keystore \
+            -PMYAPP_UPLOAD_STORE_PASSWORD="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
+            -PMYAPP_UPLOAD_KEY_ALIAS="${{ secrets.ANDROID_KEY_ALIAS }}" \
+            -PMYAPP_UPLOAD_KEY_PASSWORD="${{ secrets.ANDROID_KEY_PASSWORD }}"
+
       - name: Build Android release APK
         working-directory: android
         shell: bash
