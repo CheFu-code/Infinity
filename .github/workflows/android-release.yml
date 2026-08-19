@@ -76,7 +76,11 @@ jobs:
         run: |
           ./gradlew :react-native-google-mobile-ads:generateCodegenSchemaFromJavaScript \
             --stacktrace \
-            --info
+            --info \
+            -PMYAPP_UPLOAD_STORE_FILE=upload.keystore \
+            -PMYAPP_UPLOAD_STORE_PASSWORD="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
+            -PMYAPP_UPLOAD_KEY_ALIAS="${{ secrets.ANDROID_KEY_ALIAS }}" \
+            -PMYAPP_UPLOAD_KEY_PASSWORD="${{ secrets.ANDROID_KEY_PASSWORD }}"
 
       - name: Build Android release apk
         working-directory: android
