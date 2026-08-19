@@ -85,7 +85,6 @@ jobs:
              [ -z "${{ secrets.ANDROID_KEY_ALIAS }}" ] || \
              [ -z "${{ secrets.ANDROID_KEY_PASSWORD }}" ]; then
             echo "Required secrets are missing."
-            echo "Please set:"
             echo "ANDROID_KEYSTORE_BASE64"
             echo "ANDROID_KEYSTORE_PASSWORD"
             echo "ANDROID_KEY_ALIAS"
@@ -146,7 +145,25 @@ jobs:
             -PMYAPP_UPLOAD_KEY_ALIAS="${{ secrets.ANDROID_KEY_ALIAS }}" \
             -PMYAPP_UPLOAD_KEY_PASSWORD="${{ secrets.ANDROID_KEY_PASSWORD }}"
 
+      - name: Diagnose Google Mobile Ads Kotlin
+        working-directory: android
+        shell: bash
+        run: |
+          echo "========================================"
+          echo "Compiling Google Mobile Ads Kotlin"
+          echo "========================================"
+
+          ./gradlew :react-native-google-mobile-ads:compileReleaseKotlin \
+            --stacktrace \
+            --info \
+            --console=plain \
+            -PMYAPP_UPLOAD_STORE_FILE=upload.keystore \
+            -PMYAPP_UPLOAD_STORE_PASSWORD="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
+            -PMYAPP_UPLOAD_KEY_ALIAS="${{ secrets.ANDROID_KEY_ALIAS }}" \
+            -PMYAPP_UPLOAD_KEY_PASSWORD="${{ secrets.ANDROID_KEY_PASSWORD }}"
+
       - name: Build Android release APK
+        if: ${{ success() }}
         working-directory: android
         shell: bash
         run: |
@@ -157,6 +174,7 @@ jobs:
             -PMYAPP_UPLOAD_KEY_PASSWORD="${{ secrets.ANDROID_KEY_PASSWORD }}"
 
       - name: Upload release APK
+        if: ${{ success() }}
         uses: actions/upload-artifact@v4
         with:
           name: android-release-apk
