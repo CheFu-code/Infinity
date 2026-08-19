@@ -63,7 +63,11 @@ jobs:
         shell: bash
         run: |
           mkdir -p android/app
-          printf '%s' "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload.keystore
+
+          printf '%s' "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" \
+            | base64 --decode \
+            > android/app/upload.keystore
+
           ls -l android/app/upload.keystore
 
       - name: Make Gradle wrapper executable
@@ -83,36 +87,145 @@ jobs:
           npm --version
 
           echo "========================================"
-          echo "package.json versions"
+          echo "Package versions"
           echo "========================================"
-          node -e "const p=require('./package.json'); console.log(JSON.stringify({reactNative:p.dependencies?.['react-native'] || p.devDependencies?.['react-native'], googleAds:p.dependencies?.['react-native-google-mobile-ads'] || p.devDependencies?.['react-native-google-mobile-ads'], codegen:p.dependencies?.['@react-native/codegen'] || p.devDependencies?.['@react-native/codegen']}, null, 2))"
+
+          node -e "
+            const p = require('./package.json');
+
+            console.log(JSON.stringify({
+              reactNative:
+                p.dependencies?.['react-native'] ||
+                p.devDependencies?.['react-native'],
+
+              googleAds:
+                p.dependencies?.['react-native-google-mobile-ads'] ||
+                p.devDependencies?.['react-native-google-mobile-ads'],
+
+              codegen:
+                p.dependencies?.['@react-native/codegen'] ||
+                p.devDependencies?.['@react-native/codegen']
+            }, null, 2));
+          "
 
           echo "========================================"
-          echo "Installed package versions"
+          echo "Installed packages"
           echo "========================================"
-          npm list react-native react-native-google-mobile-ads @react-native/codegen --depth=0 || true
 
-          echo "========================================"
-          echo "Google Mobile Ads package information"
-          echo "========================================"
-          node -e "const p=require('./node_modules/react-native-google-mobile-ads/package.json'); console.log(JSON.stringify({name:p.name, version:p.version, peerDependencies:p.peerDependencies}, null, 2))"
+          npm list \
+            react-native \
+            react-native-google-mobile-ads \
+            @react-native/codegen \
+            --depth=0 || true
 
-      - name: Diagnose Google Mobile Ads Codegen
-        working-directory: android
+      - name: Inspect Google Mobile Ads Codegen configuration
         shell: bash
         run: |
           echo "========================================"
-          echo "Running Google Mobile Ads Codegen"
+          echo "Google Mobile Ads package"
           echo "========================================"
 
-          ./gradlew :react-native-google-mobile-ads:generateCodegenSchemaFromJavaScript \
-            --stacktrace \
-            --info \
-            --console=plain \
-            -PMYAPP_UPLOAD_STORE_FILE=upload.keystore \
-            -PMYAPP_UPLOAD_STORE_PASSWORD="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
-            -PMYAPP_UPLOAD_KEY_ALIAS="${{ secrets.ANDROID_KEY_ALIAS }}" \
-            -PMYAPP_UPLOAD_KEY_PASSWORD="${{ secrets.ANDROID_KEY_PASSWORD }}"
+          node -e "
+            const p = require('./node_modules/react-native-google-mobile-ads/package.json');
+
+            console.log(JSON.stringify({
+              name: p.name,
+              version: p.version,
+              peerDependencies: p.peerDependencies,
+              codegenConfig: p.codegenConfig
+            }, null, 2));
+          "
+
+          echo "========================================"
+          echo "Google Mobile Ads package location"
+          echo "========================================"
+
+          node -e "
+            console.log(
+              require.resolve(
+                'react-native-google-mobile-ads/package.json'
+              )
+            );
+          "
+
+          echo "========================================"
+          echo "React Native package location"
+          echo "========================================"
+
+          node -e "
+            console.log(
+              require.resolve(
+                'react-native/package.json'
+              )
+            );
+          "
+
+          echo "========================================"
+          echo "Codegen package location"
+          echo "========================================"
+
+          node -e "
+            console.log(
+              require.resolve(
+                '@react-native/codegen/package.json'
+              )
+            );
+          "
+
+      - name: Inspect Google Mobile Ads source specs
+        shell: bash
+        run: |
+          echo "========================================"
+          echo "Google Mobile Ads source directories"
+          echo "========================================"
+
+          find node_modules/react-native-google-mobile-ads \
+            -maxdepth 3 \
+            -type f \
+            \( -name "*.js" -o -name "*.ts" -o -name "*.tsx" \) \
+            | sort
+
+          echo "========================================"
+          echo "Spec files"
+          echo "========================================"
+
+          find node_modules/react-native-google-mobile-ads \
+            -type f \
+            \( -name "*Spec.ts" -o -name "*Spec.tsx" -o -name "*Native*.ts" -o -name "*Native*.tsx" \) \
+            | sort
+
+      - name: Run React Native Codegen directly
+        shell: bash
+        run: |
+          echo "========================================"
+          echo "React Native Codegen"
+          echo "========================================"
+
+          node -e "
+            console.log(
+              require.resolve(
+                'react-native/scripts/generate-codegen-artifacts.js'
+              )
+            );
+          "
+
+          echo "========================================"
+          echo "Codegen help"
+          echo "========================================"
+
+          node node_modules/react-native/scripts/generate-codegen-artifacts.js \
+            --help
+
+      - name: Generate React Native Codegen artifacts directly
+        shell: bash
+        run: |
+          echo "========================================"
+          echo "Generating Codegen artifacts"
+          echo "========================================"
+
+          node node_modules/react-native/scripts/generate-codegen-artifacts.js \
+            --path . \
+            --outputPath android/build/generated/codegen
 
       - name: Build Android release APK
         working-directory: android
