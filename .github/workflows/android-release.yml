@@ -225,8 +225,8 @@ jobs:
 
           node node_modules/react-native/scripts/generate-codegen-artifacts.js \
             --path . \
+            --targetPlatform android \
             --outputPath android/build/generated/codegen
-
       - name: Build Android release APK
         working-directory: android
         shell: bash
