@@ -149,6 +149,8 @@ jobs:
         working-directory: android
         shell: bash
         run: |
+          set -o pipefail
+
           echo "========================================"
           echo "Compiling Google Mobile Ads Kotlin"
           echo "========================================"
@@ -160,7 +162,23 @@ jobs:
             -PMYAPP_UPLOAD_STORE_FILE=upload.keystore \
             -PMYAPP_UPLOAD_STORE_PASSWORD="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
             -PMYAPP_UPLOAD_KEY_ALIAS="${{ secrets.ANDROID_KEY_ALIAS }}" \
-            -PMYAPP_UPLOAD_KEY_PASSWORD="${{ secrets.ANDROID_KEY_PASSWORD }}"
+            -PMYAPP_UPLOAD_KEY_PASSWORD="${{ secrets.ANDROID_KEY_PASSWORD }}" \
+            2>&1 | tee ../google-mobile-ads-kotlin.log
+
+          echo "========================================"
+          echo "Kotlin compiler errors"
+          echo "========================================"
+
+          grep -E \
+            "^[eE]:|error:|Unresolved reference|Type mismatch|overrides nothing|incompatible" \
+            ../google-mobile-ads-kotlin.log || true
+
+      - name: Upload Kotlin diagnostic log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: google-mobile-ads-kotlin-log
+          path: google-mobile-ads-kotlin.log
 
       - name: Build Android release APK
         if: ${{ success() }}
