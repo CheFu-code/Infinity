@@ -9,6 +9,7 @@ jobs:
   build:
     name: Build Android Release
     runs-on: ubuntu-latest
+
     env:
       NODE_OPTIONS: --max-old-space-size=4096
 
@@ -45,8 +46,16 @@ jobs:
       - name: Verify required secrets
         shell: bash
         run: |
-          if [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ] || [ -z "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" ] || [ -z "${{ secrets.ANDROID_KEY_ALIAS }}" ] || [ -z "${{ secrets.ANDROID_KEY_PASSWORD }}" ]; then
-            echo "Required secrets are missing. Please set ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD."
+          if [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ] || \
+             [ -z "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" ] || \
+             [ -z "${{ secrets.ANDROID_KEY_ALIAS }}" ] || \
+             [ -z "${{ secrets.ANDROID_KEY_PASSWORD }}" ]; then
+            echo "Required secrets are missing."
+            echo "Please set:"
+            echo "ANDROID_KEYSTORE_BASE64"
+            echo "ANDROID_KEYSTORE_PASSWORD"
+            echo "ANDROID_KEY_ALIAS"
+            echo "ANDROID_KEY_PASSWORD"
             exit 1
           fi
 
@@ -59,6 +68,15 @@ jobs:
 
       - name: Make Gradle wrapper executable
         run: chmod +x android/gradlew
+
+      # Diagnostic step for the react-native-google-mobile-ads Codegen failure
+      - name: Diagnose Google Mobile Ads Codegen
+        working-directory: android
+        shell: bash
+        run: |
+          ./gradlew :react-native-google-mobile-ads:generateCodegenSchemaFromJavaScript \
+            --stacktrace \
+            --info
 
       - name: Build Android release apk
         working-directory: android
