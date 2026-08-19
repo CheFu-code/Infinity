@@ -43,6 +43,40 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Patch Google Mobile Ads NativeAppModule
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          file = Path(
+              "node_modules/react-native-google-mobile-ads/src/specs/modules/NativeAppModule.ts"
+          )
+
+          text = file.read_text()
+
+          old_import = "import type { CodegenTypes } from 'react-native';"
+          new_import = "import type { UnsafeObject } from 'react-native/Libraries/Types/CodegenTypes';"
+
+          if old_import not in text:
+              raise SystemExit(
+                  "Expected CodegenTypes import was not found. "
+                  "The installed Google Mobile Ads package may have changed."
+              )
+
+          text = text.replace(old_import, new_import)
+          text = text.replace("CodegenTypes.UnsafeObject", "UnsafeObject")
+
+          file.write_text(text)
+          PY
+
+          echo "========================================"
+          echo "Patched NativeAppModule.ts"
+          echo "========================================"
+
+          sed -n '15,60p' \
+            node_modules/react-native-google-mobile-ads/src/specs/modules/NativeAppModule.ts
+
       - name: Verify required secrets
         shell: bash
         run: |
@@ -73,139 +107,28 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x android/gradlew
 
-      - name: Inspect React Native packages
+      - name: Inspect versions
         shell: bash
         run: |
           echo "========================================"
-          echo "Node version"
+          echo "Node"
           echo "========================================"
           node --version
 
           echo "========================================"
-          echo "npm version"
+          echo "React Native"
           echo "========================================"
-          npm --version
-
-          echo "========================================"
-          echo "Package versions"
-          echo "========================================"
-
-          node -e "
-            const p = require('./package.json');
-
-            console.log(JSON.stringify({
-              reactNative:
-                p.dependencies?.['react-native'] ||
-                p.devDependencies?.['react-native'],
-
-              googleAds:
-                p.dependencies?.['react-native-google-mobile-ads'] ||
-                p.devDependencies?.['react-native-google-mobile-ads'],
-
-              codegen:
-                p.dependencies?.['@react-native/codegen'] ||
-                p.devDependencies?.['@react-native/codegen']
-            }, null, 2));
-          "
+          node -e "console.log(require('react-native/package.json').version)"
 
           echo "========================================"
-          echo "Installed packages"
+          echo "Google Mobile Ads"
           echo "========================================"
-
-          npm list \
-            react-native \
-            react-native-google-mobile-ads \
-            @react-native/codegen \
-            --depth=0 || true
-
-      - name: Inspect Google Mobile Ads Codegen configuration
-        shell: bash
-        run: |
-          echo "========================================"
-          echo "Google Mobile Ads package"
-          echo "========================================"
-
-          node -e "
-            const p = require('./node_modules/react-native-google-mobile-ads/package.json');
-
-            console.log(JSON.stringify({
-              name: p.name,
-              version: p.version,
-              peerDependencies: p.peerDependencies,
-              codegenConfig: p.codegenConfig
-            }, null, 2));
-          "
+          node -e "console.log(require('react-native-google-mobile-ads/package.json').version)"
 
           echo "========================================"
-          echo "Google Mobile Ads package location"
+          echo "React Native Codegen"
           echo "========================================"
-
-          node -e "
-            console.log(
-              require.resolve(
-                'react-native-google-mobile-ads/package.json'
-              )
-            );
-          "
-
-          echo "========================================"
-          echo "React Native package location"
-          echo "========================================"
-
-          node -e "
-            console.log(
-              require.resolve(
-                'react-native/package.json'
-              )
-            );
-          "
-
-          echo "========================================"
-          echo "Codegen package location"
-          echo "========================================"
-
-          node -e "
-            console.log(
-              require.resolve(
-                '@react-native/codegen/package.json'
-              )
-            );
-          "
-
-      - name: Inspect Google Mobile Ads source specs
-        shell: bash
-        run: |
-          echo "========================================"
-          echo "Google Mobile Ads source files"
-          echo "========================================"
-
-          find node_modules/react-native-google-mobile-ads \
-            -maxdepth 3 \
-            -type f \
-            \( -name "*.js" -o -name "*.ts" -o -name "*.tsx" \) \
-            | sort
-
-          echo "========================================"
-          echo "Spec files"
-          echo "========================================"
-
-          find node_modules/react-native-google-mobile-ads \
-            -type f \
-            \( -name "*Spec.ts" -o -name "*Spec.tsx" -o -name "*Native*.ts" -o -name "*Native*.tsx" \) \
-            | sort
-
-      - name: Check React Native Codegen version
-        shell: bash
-        run: |
-          echo "========================================"
-          echo "React Native Codegen version"
-          echo "========================================"
-
-          node -e "
-            console.log(
-              require('@react-native/codegen/package.json').version
-            );
-          "
+          node -e "console.log(require('@react-native/codegen/package.json').version)"
 
       - name: Test Google Mobile Ads Codegen
         working-directory: android
