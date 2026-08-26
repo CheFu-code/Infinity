@@ -73,21 +73,20 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x android/gradlew
 
-
-      - name: Build Android release APK
+      - name: Build Android release AAB
         if: ${{ success() }}
         working-directory: android
         shell: bash
         run: |
-          ./gradlew assembleRelease \
+          ./gradlew bundleRelease \
             -PMYAPP_UPLOAD_STORE_FILE=upload.keystore \
             -PMYAPP_UPLOAD_STORE_PASSWORD="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
             -PMYAPP_UPLOAD_KEY_ALIAS="${{ secrets.ANDROID_KEY_ALIAS }}" \
             -PMYAPP_UPLOAD_KEY_PASSWORD="${{ secrets.ANDROID_KEY_PASSWORD }}"
 
-      - name: Upload release APK
+      - name: Upload release AAB
         if: ${{ success() }}
         uses: actions/upload-artifact@v4
         with:
-          name: android-release-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
+          name: android-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
