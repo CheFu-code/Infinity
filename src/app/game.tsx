@@ -8,16 +8,17 @@ import { Button } from "../components/Button";
 import { Modal } from "../components/Modal";
 import { ScoreBoard } from "../components/ScoreBoard";
 import { useGame } from "../hooks/useGame";
+import { useInfinityAuth } from "../hooks/useInfinityAuth";
+import { useGameStore } from "../store/gameStore";
 
 export default function GameScreen() {
     const colorScheme = useColorScheme();
     const { game, settings, isHydrated, move, undo, restart, continueAfterWin } =
         useGame();
     const [paused, setPaused] = useState(false);
-    const [showRewardedAd, setShowRewardedAd] = useState(false);
-    const [undoCount, setUndoCount] = useState(0);
+    const { session, signIn } = useInfinityAuth();
 
-   
+
     const resolvedTheme = useMemo(() => {
         if (settings.theme === "system") {
             return colorScheme ?? "light";
@@ -25,6 +26,16 @@ export default function GameScreen() {
         return settings.theme;
     }, [colorScheme, settings.theme]);
     const isDark = resolvedTheme === "dark";
+
+    useEffect(() => {
+        if (isHydrated && session) {
+            void useGameStore.getState().syncRemote(session.accessToken).catch(() => undefined);
+        }
+    }, [isHydrated, session]);
+
+    const handleLogin = async () => {
+        await signIn();
+    };
 
     if (!isHydrated) {
         return (
@@ -62,8 +73,7 @@ export default function GameScreen() {
                     >
                         Infinity
                     </Text>
-                    {/**TODO: Add login functionality to save users history even when logged in on new device */}
-                    {/* <Button label="Login" onPress={restart} /> */}
+                    <Button label={session ? "Logged in" : "Login"} onPress={handleLogin} disabled={Boolean(session)} />
                 </Animated.View>
 
                 <ScoreBoard
@@ -90,12 +100,7 @@ export default function GameScreen() {
                         variant="secondary"
                         onPress={() => {
                             undo();
-                            setUndoCount(prev => prev + 1);
-                            // Show rewarded ad after 3 undos
-                            if (undoCount >= 2) {
-                                setShowRewardedAd(true);
-                                setUndoCount(0);
-                            }
+
                         }}
                         disabled={game.history.length === 0}
                     />

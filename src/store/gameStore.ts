@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { clearProgress, createDefaultSettings, createInitialGameState, keepPlaying, loadState, makeMove, restartGame, saveState, undoMove } from '../game/engine';
 import { Direction, GameSettings, GameState } from '../game/types';
 import { playMergeSound, playWinSound } from '../utils/audio';
+import { fetchInfinityState, saveInfinityState } from '../lib/infinityAuth';
 
 interface GameStore {
     game: GameState;
@@ -10,6 +11,7 @@ interface GameStore {
     isHydrated: boolean;
     undoPressCount: number;
     showRewardedAd: boolean;
+    accessToken?: string;
     initialize: () => Promise<void>;
     move: (direction: Direction) => void;
     undo: () => void;
@@ -21,6 +23,7 @@ interface GameStore {
     resetProgress: () => Promise<void>;
     resetUndoCount: () => void;
     dismissRewardedAd: () => void;
+    syncRemote: (accessToken: string) => Promise<void>;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -29,6 +32,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     isHydrated: false,
     undoPressCount: 0,
     showRewardedAd: false,
+    accessToken: undefined as string | undefined,
     initialize: async () => {
         const persisted = await loadState();
         if (persisted) {
@@ -37,6 +41,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }
 
         set({ isHydrated: true });
+    },
+    syncRemote: async (accessToken) => {
+        const remote = await fetchInfinityState(accessToken);
+        const local = { game: get().game, settings: get().settings };
+        set({ accessToken });
+        if (remote) {
+            set({ game: remote.game, settings: remote.settings });
+            await saveState(remote.game, remote.settings);
+        } else {
+            await saveInfinityState(accessToken, local);
+        }
     },
     move: (direction) => {
         const previousGame = get().game;
@@ -58,6 +73,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }
 
         void saveState(updatedGame, settings);
+        if (get().accessToken) void saveInfinityState(get().accessToken!, { game: updatedGame, settings });
     },
     undo: () => {
         const next = undoMove(get().game);
@@ -71,16 +87,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }
         
         void saveState(next, get().settings);
+        if (get().accessToken) void saveInfinityState(get().accessToken!, { game: next, settings: get().settings });
     },
     restart: () => {
         const next = restartGame(get().game);
         set({ game: next, undoPressCount: 0 }); // Reset undo count on restart
         void saveState(next, get().settings);
+        if (get().accessToken) void saveInfinityState(get().accessToken!, { game: next, settings: get().settings });
     },
     continueAfterWin: () => {
         const next = keepPlaying(get().game);
         set({ game: next });
         void saveState(next, get().settings);
+        if (get().accessToken) void saveInfinityState(get().accessToken!, { game: next, settings: get().settings });
     },
     toggleSound: () => {
         const settings = { ...get().settings, soundEnabled: !get().settings.soundEnabled };
