@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { StyleSheet, Text, View, useColorScheme } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View, useColorScheme } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,7 +16,10 @@ export default function GameScreen() {
     const { game, settings, isHydrated, move, undo, restart, continueAfterWin } =
         useGame();
     const [paused, setPaused] = useState(false);
-    const { session, signIn } = useInfinityAuth();
+    const { session, isChecking, signIn, signOut } = useInfinityAuth();
+    const [profileVisible, setProfileVisible] = useState(false);
+    const [authBusy, setAuthBusy] = useState(false);
+    const [authError, setAuthError] = useState("");
 
 
     const resolvedTheme = useMemo(() => {
@@ -34,7 +37,23 @@ export default function GameScreen() {
     }, [isHydrated, session]);
 
     const handleLogin = async () => {
-        await signIn();
+        setAuthError("");
+        setAuthBusy(true);
+        try {
+            await signIn();
+        } catch (error) {
+            setAuthError(error instanceof Error ? error.message : "Sign in could not be completed.");
+        } finally {
+            setAuthBusy(false);
+        }
+    };
+
+    const handleSignOut = async () => {
+        setAuthBusy(true);
+        await signOut();
+        useGameStore.setState({ accessToken: undefined });
+        setProfileVisible(false);
+        setAuthBusy(false);
     };
 
     if (!isHydrated) {
@@ -73,8 +92,26 @@ export default function GameScreen() {
                     >
                         Infinity
                     </Text>
-                    <Button label={session ? "Logged in" : "Login"} onPress={handleLogin} disabled={Boolean(session)} />
+                    {session ? (
+                        <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel="Open profile"
+                            onPress={() => setProfileVisible(true)}
+                            style={({ pressed }) => [styles.profileTrigger, pressed && styles.profilePressed]}
+                        >
+                            {session.user.photoURL ? (
+                                <Image source={{ uri: session.user.photoURL }} style={styles.profileAvatar} />
+                            ) : (
+                                <Text style={styles.profileInitials}>{getInitials(session.user.displayName, session.user.email)}</Text>
+                            )}
+                            <Ionicons name="chevron-down" size={16} color={isDark ? "#f8fafc" : "#334155"} />
+                        </Pressable>
+                    ) : (
+                        <Button label={authBusy || isChecking ? "Loading..." : "Login"} onPress={handleLogin} disabled={authBusy || isChecking} />
+                    )}
                 </Animated.View>
+
+                {authError ? <Text style={styles.authError}>{authError}</Text> : null}
 
                 <ScoreBoard
                     score={game.score}
@@ -202,6 +239,27 @@ export default function GameScreen() {
                     <Button label="Resume" onPress={() => setPaused(false)} />
                 </View>
             </Modal>
+
+            <Modal visible={profileVisible} title="Your profile" onClose={() => setProfileVisible(false)} theme={resolvedTheme}>
+                {session ? (
+                    <View style={styles.profileContent}>
+                        {session.user.photoURL ? (
+                            <Image source={{ uri: session.user.photoURL }} style={styles.profileLargeAvatar} />
+                        ) : (
+                            <View style={styles.profileLargeAvatarFallback}>
+                                <Text style={styles.profileLargeInitials}>{getInitials(session.user.displayName, session.user.email)}</Text>
+                            </View>
+                        )}
+                        <View style={styles.profileDetails}>
+                            <Text style={[styles.profileName, isDark ? styles.darkText : styles.lightText]}>
+                                {session.user.displayName || "Infinity player"}
+                            </Text>
+                            <Text style={isDark ? styles.mutedDarkText : styles.mutedLightText}>{session.user.email}</Text>
+                        </View>
+                        <Button label={authBusy ? "Signing out..." : "Sign out"} variant="secondary" onPress={handleSignOut} disabled={authBusy} />
+                    </View>
+                ) : null}
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -217,6 +275,28 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     title: { fontSize: 28, fontWeight: "700" },
+    profileTrigger: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
+        padding: 4,
+        borderRadius: 999,
+    },
+    profilePressed: { opacity: 0.7 },
+    profileAvatar: { width: 38, height: 38, borderRadius: 19 },
+    profileInitials: {
+        width: 38,
+        height: 38,
+        borderRadius: 19,
+        textAlign: "center",
+        textAlignVertical: "center",
+        backgroundColor: "#7c3aed",
+        color: "#ffffff",
+        fontSize: 14,
+        fontWeight: "800",
+        overflow: "hidden",
+        paddingTop: 10,
+    },
     lightText: { color: "#0f172a" },
     darkText: { color: "#f8fafc" },
     mutedLightText: { color: "#64748b" },
@@ -249,6 +329,20 @@ const styles = StyleSheet.create({
     modalContent: { gap: 12 },
     modalActions: { flexDirection: 'row', gap: 12, justifyContent: 'space-between' },
     modalText: { fontSize: 16, lineHeight: 24 },
+    authError: { color: "#dc2626", fontSize: 13, textAlign: "right" },
+    profileContent: { alignItems: "center", gap: 14 },
+    profileLargeAvatar: { width: 76, height: 76, borderRadius: 38 },
+    profileLargeAvatarFallback: {
+        width: 76,
+        height: 76,
+        borderRadius: 38,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#7c3aed",
+    },
+    profileLargeInitials: { color: "#ffffff", fontSize: 24, fontWeight: "800" },
+    profileDetails: { alignItems: "center", gap: 4 },
+    profileName: { fontSize: 18, fontWeight: "700" },
     gameOverContent: { alignItems: "center", gap: 18 },
     gameOverIcon: { width: 64, height: 64, borderRadius: 32, alignItems: "center", justifyContent: "center" },
     gameOverIconLight: { backgroundColor: "#f1eafe" },
@@ -265,3 +359,9 @@ const styles = StyleSheet.create({
     gameOverDividerDark: { backgroundColor: "#334155" },
     gameOverAction: { width: "100%" },
 });
+
+function getInitials(displayName: string | undefined, email: string) {
+    const source = displayName?.trim() || email;
+    const parts = source.split(/[\s._-]+/).filter(Boolean);
+    return (parts.length > 1 ? `${parts[0][0]}${parts[1][0]}` : source.slice(0, 2)).toUpperCase();
+}

@@ -17,7 +17,7 @@ const DISCOVERY = {
   userInfoEndpoint: `${API_BASE}/oauth/userinfo`,
 };
 
-export type InfinityUser = { uid: string; email: string; displayName?: string };
+export type InfinityUser = { uid: string; email: string; displayName?: string; photoURL?: string };
 export type InfinitySession = {
   accessToken: string;
   refreshToken?: string;
@@ -77,7 +77,7 @@ export async function signInToInfinity(): Promise<InfinitySession | null> {
   if (!token.accessToken || !token.expiresIn) throw new Error('Sign in did not return a valid session.');
 
   const userInfo = await AuthSession.fetchUserInfoAsync({ accessToken: token.accessToken }, DISCOVERY) as {
-    sub?: string; email?: string; name?: string;
+    sub?: string; email?: string; name?: string; picture?: string; photoURL?: string;
   };
   if (!userInfo.sub || !userInfo.email) throw new Error('Sign in did not return a valid user.');
 
@@ -85,7 +85,12 @@ export async function signInToInfinity(): Promise<InfinitySession | null> {
     accessToken: token.accessToken,
     refreshToken: token.refreshToken,
     expiresAt: token.issuedAt + token.expiresIn,
-    user: { uid: userInfo.sub, email: userInfo.email, displayName: userInfo.name },
+    user: {
+      uid: userInfo.sub,
+      email: userInfo.email,
+      displayName: userInfo.name,
+      photoURL: userInfo.picture || userInfo.photoURL,
+    },
   };
 }
 
