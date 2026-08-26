@@ -123,7 +123,7 @@ export default function GameScreen() {
                                     isDark ? styles.darkText : styles.lightText,
                                 ]}
                             >
-                                You reached 2048! Keep playing to chase a higher tile.
+                                Congratulations! You reached 2048! Keep playing to chase a higher tile.
                             </Text>
                             <View style={styles.modalActions}>
                                 <Button label="Keep playing" onPress={continueAfterWin} />
