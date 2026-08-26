@@ -7,10 +7,7 @@ import { Board } from "../components/Board";
 import { Button } from "../components/Button";
 import { Modal } from "../components/Modal";
 import { ScoreBoard } from "../components/ScoreBoard";
-import { Banner } from "../components/BannerAd";
-import { RewardedAdComponent } from "../components/RewardedAdComponent";
 import { useGame } from "../hooks/useGame";
-import { initializeAdMob } from "../utils/admob";
 
 export default function GameScreen() {
     const colorScheme = useColorScheme();
@@ -20,11 +17,7 @@ export default function GameScreen() {
     const [showRewardedAd, setShowRewardedAd] = useState(false);
     const [undoCount, setUndoCount] = useState(0);
 
-    // Initialize AdMob on component mount
-    useEffect(() => {
-        initializeAdMob();
-    }, []);
-
+   
     const resolvedTheme = useMemo(() => {
         if (settings.theme === "system") {
             return colorScheme ?? "light";
@@ -204,20 +197,6 @@ export default function GameScreen() {
                     <Button label="Resume" onPress={() => setPaused(false)} />
                 </View>
             </Modal>
-
-            {/* Banner Ad */}
-            <Banner isDark={isDark} />
-
-            {/* Rewarded Ad */}
-            <RewardedAdComponent
-                visible={showRewardedAd}
-                onRewardEarned={(reward) => {
-                    console.log('Reward earned, granting extra undo');
-                    // Grant extra undo or bonus
-                }}
-                onClose={() => setShowRewardedAd(false)}
-                isDark={isDark}
-            />
         </SafeAreaView>
     );
 }

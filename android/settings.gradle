@@ -21,7 +21,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
-rootProject.name = 'Infinity 2048'
+rootProject.name = 'Infinity'
 
 dependencyResolutionManagement {
   versionCatalogs {
