@@ -23,7 +23,7 @@
                 "expo-channel-name": "production"
             }
         },
-        "runtimeVersion": "1.1.0",
+        "runtimeVersion": "1.1.1",
         "plugins": [
             "expo-router",
             "expo-asset",
@@ -35,7 +35,7 @@
         },
         "android": {
             "package": "co.za.chefu.infinity",
-            "versionCode": 2,
+            "versionCode": 3,
             "adaptiveIcon": {
                 "foregroundImage": "src/assets/icon-logo.png",
                 "backgroundColor": "#FFFFFF"
