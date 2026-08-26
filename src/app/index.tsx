@@ -183,7 +183,7 @@ export default function HomeScreen() {
                     />
 
                     <Text style={[styles.footerText, { color: theme.muted }]}>
-                        Merge. Think. Repeat.
+                        Infinity update received: Merge. Think. Repeat.
                     </Text>
                 </Animated.View>
             </View>
