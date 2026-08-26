@@ -86,12 +86,12 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.kurisani.infinity2048'
+    namespace 'co.za.chefu.infinity'
     defaultConfig {
-        applicationId 'com.kurisani.infinity2048'
+        applicationId 'co.za.chefu.infinity'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode Integer.parseInt(findProperty('VERSION_CODE')?.toString() ?: '1')
+        versionCode 1
         versionName findProperty('VERSION_NAME')?.toString() ?: '1.0.0'
     }
     signingConfigs {

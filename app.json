@@ -1,50 +1,55 @@
 {
-  "expo": {
-    "name": "Infinity",
-    "slug": "infinity",
-    "version": "1.0.0",
-    "scheme": "infinity",
-    "orientation": "portrait",
-    "userInterfaceStyle": "automatic",
-    "platforms": [
-      "ios",
-      "android"
-    ],
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "icon": "src/assets/infinity.png",
-    "updates": {
-      "enabled": true,
-      "checkAutomatically": "ON_LOAD",
-      "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/3f9617ae-4c7d-430e-8a22-48902524e2bf",
-      "requestHeaders": {
-        "expo-channel-name": "production"
-      }
-    },
-    "runtimeVersion": "1.0.0",
-    "plugins": [
-      "expo-router",
-      "expo-asset",
-      "expo-font",
-      "expo-updates"
-    ],
-    "experiments": {
-      "typedRoutes": true
-    },
-    "android": {
-      "package": "com.kurisani.infinity2048"
-    },
-    "newArchEnabled": false,
-    "extra": {
-      "router": {
-        "origin": false
-      },
-      "eas": {
-        "projectId": "3f9617ae-4c7d-430e-8a22-48902524e2bf"
-      }
-    },
-    "owner": "chefu"
-  }
+    "expo": {
+        "name": "Infinity",
+        "slug": "infinity",
+        "version": "1.0.0",
+        "scheme": "infinity",
+        "orientation": "portrait",
+        "userInterfaceStyle": "automatic",
+        "platforms": [
+            "ios",
+            "android"
+        ],
+        "assetBundlePatterns": [
+            "**/*"
+        ],
+        "icon": "src/assets/logo.png",
+        "updates": {
+            "enabled": true,
+            "checkAutomatically": "ON_LOAD",
+            "fallbackToCacheTimeout": 0,
+            "url": "https://u.expo.dev/3f9617ae-4c7d-430e-8a22-48902524e2bf",
+            "requestHeaders": {
+                "expo-channel-name": "production"
+            }
+        },
+        "runtimeVersion": "1.0.0",
+        "plugins": [
+            "expo-router",
+            "expo-asset",
+            "expo-font",
+            "expo-updates"
+        ],
+        "experiments": {
+            "typedRoutes": true
+        },
+        "android": {
+            "package": "co.za.chefu.infinity",
+            "versionCode": 1,
+            "adaptiveIcon": {
+                "foregroundImage": "src/assets/icon-logo.png",
+                "backgroundColor": "#FFFFFF"
+            }
+        },
+        "newArchEnabled": false,
+        "extra": {
+            "router": {
+                "origin": false
+            },
+            "eas": {
+                "projectId": "3f9617ae-4c7d-430e-8a22-48902524e2bf"
+            }
+        },
+        "owner": "chefu"
+    }
 }

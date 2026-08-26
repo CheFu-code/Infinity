@@ -1,4 +1,4 @@
-package com.kurisani.infinity2048
+package co.za.chefu.infinity
 
 import android.app.Application
 import android.content.res.Configuration
