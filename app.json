@@ -35,7 +35,7 @@
         },
         "android": {
             "package": "co.za.chefu.infinity",
-            "versionCode": 5,
+            "versionCode": 6,
             "adaptiveIcon": {
                 "foregroundImage": "src/assets/icon-logo.png",
                 "backgroundColor": "#FFFFFF"
