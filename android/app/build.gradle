@@ -91,7 +91,7 @@ android {
         applicationId 'co.za.chefu.infinity'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4
+        versionCode 5
         versionName findProperty('VERSION_NAME')?.toString() ?: '1.0.0'
     }
     signingConfigs {
