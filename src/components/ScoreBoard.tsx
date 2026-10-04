@@ -23,7 +23,7 @@ export function ScoreBoard({ score, bestScore, moveCount, maxTile }: ScoreBoardP
         <Text style={styles.value}>{moveCount}</Text>
       </View>
       <View style={styles.scoreBox}>
-        <Text style={styles.label}>Highest tile</Text>
+        <Text style={styles.label}>Top tile</Text>
         <Text style={styles.value}>{maxTile}</Text>
       </View>
     </View>

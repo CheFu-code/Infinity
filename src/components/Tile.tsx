@@ -17,74 +17,33 @@ type TileTheme = {
     shadow?: string;
 };
 
-const getTileTheme = (value: number): TileTheme => {
-    const palette: Record<number, TileTheme> = {
-        2: {
-            background: '#F4F1EA',
-            text: '#3F3A32',
-        },
+const DARK_TEXT = '#3F3A32';
+const LIGHT_TEXT = '#FFFFFF';
 
-        4: {
-            background: '#EDE6D8',
-            text: '#3F3A32',
-        },
-
-        8: {
-            background: '#E8B86D',
-            text: '#FFFFFF',
-        },
-
-        16: {
-            background: '#E49A4F',
-            text: '#FFFFFF',
-        },
-
-        32: {
-            background: '#D96B45',
-            text: '#FFFFFF',
-        },
-
-        64: {
-            background: '#C94C4C',
-            text: '#FFFFFF',
-        },
-
-        128: {
-            background: '#9B59B6',
-            text: '#FFFFFF',
-        },
-
-        256: {
-            background: '#7657C8',
-            text: '#FFFFFF',
-        },
-
-        512: {
-            background: '#4C6FD7',
-            text: '#FFFFFF',
-        },
-
-        1024: {
-            background: '#277DA1',
-            text: '#FFFFFF',
-        },
-
-        2048: {
-            background: '#7C3AED',
-            text: '#FFFFFF',
-            shadow: '#7C3AED',
-        },
-    };
-
-    return (
-        palette[value] ?? {
-            background: '#18181B',
-            text: '#FFFFFF',
-            shadow: '#18181B',
-        }
-    );
+const TILE_PALETTE: Record<number, TileTheme> = {
+    2: { background: '#F4F1EA', text: DARK_TEXT },
+    4: { background: '#E6D9BC', text: DARK_TEXT },
+    8: { background: '#E8B86D', text: DARK_TEXT },
+    16: { background: '#E49A4F', text: DARK_TEXT },
+    32: { background: '#D0603A', text: LIGHT_TEXT },
+    64: { background: '#C94C4C', text: LIGHT_TEXT },
+    128: { background: '#9B59B6', text: LIGHT_TEXT },
+    256: { background: '#7657C8', text: LIGHT_TEXT },
+    512: { background: '#4C6FD7', text: LIGHT_TEXT },
+    1024: { background: '#277DA1', text: LIGHT_TEXT },
+    2048: { background: '#7C3AED', text: LIGHT_TEXT, shadow: '#7C3AED' },
 };
 
+const getTileTheme = (value: number): TileTheme => {
+    const known = TILE_PALETTE[value];
+    if (known) return known;
+
+    // Beyond 2048: a distinct, always-visible color per power of two
+    const hue = (Math.log2(value) * 47) % 360;
+    const background = `hsl(${hue} 70% 40%)`;
+
+    return { background, text: LIGHT_TEXT, shadow: background };
+};
 const getFontSize = (value: number) => {
     if (value >= 10000) return 22;
     if (value >= 1000) return 26;

@@ -23,7 +23,7 @@
                 "expo-channel-name": "production"
             }
         },
-        "runtimeVersion": "1.1.1",
+        "runtimeVersion": "1.1.2",
         "plugins": [
             "expo-router",
             "expo-asset",

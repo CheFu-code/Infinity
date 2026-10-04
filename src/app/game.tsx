@@ -92,7 +92,7 @@ export default function GameScreen() {
                     >
                         Infinity
                     </Text>
-                    {session ? (
+                    {/* {session ? (
                         <Pressable
                             accessibilityRole="button"
                             accessibilityLabel="Open profile"
@@ -108,7 +108,7 @@ export default function GameScreen() {
                         </Pressable>
                     ) : (
                         <Button label={authBusy || isChecking ? "Loading..." : "Login"} onPress={handleLogin} disabled={authBusy || isChecking} />
-                    )}
+                    )} */}
                 </Animated.View>
 
                 {authError ? <Text style={styles.authError}>{authError}</Text> : null}
@@ -131,10 +131,9 @@ export default function GameScreen() {
                 </Animated.View>
 
                 <View style={styles.actions}>
-                    <Button label="Restart" onPress={restart} />
+                    <Button variant="secondary" label="Restart" onPress={restart} />
                     <Button
                         label="Undo"
-                        variant="secondary"
                         onPress={() => {
                             undo();
 
