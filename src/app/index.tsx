@@ -1,5 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
@@ -11,9 +9,8 @@ import {
     useColorScheme,
     View,
 } from 'react-native';
-import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import { Button } from '../components/Button';
 import { useGameStore } from '../store/gameStore';
 import { getThemeValue } from '../utils/theme';
 
@@ -31,36 +28,23 @@ export default function HomeScreen() {
     const isDark = resolvedTheme === 'dark';
 
     const hasProgress = game.score > 0 || game.board.some((row) => row.some((cell) => cell !== null));
-    const unlockedAchievements = game.achievements.filter((a) => a.unlocked);
 
-    const theme = useMemo(() => ({
-        bg: isDark ? '#090D16' : '#F8FAFC',
-        surface: isDark ? '#111827' : '#FFFFFF',
-        surfaceSubtle: isDark ? '#1F293D' : '#F1F5F9',
-        border: isDark ? '#1E293B' : '#E2E8F0',
-        text: isDark ? '#F8FAFC' : '#0F172A',
-        textMuted: isDark ? '#94A3B8' : '#64748B',
-        accent: '#7C3AED',
-        accentGlow: 'rgba(124, 58, 237, 0.25)',
-        accentSoft: isDark ? 'rgba(124, 58, 237, 0.16)' : '#EDE9FE',
-    }), [isDark]);
+    const bg = isDark ? '#111827' : '#f8fafc';
+    const text = isDark ? '#f8fafc' : '#0f172a';
+    const muted = isDark ? '#94a3b8' : '#64748b';
+    const surface = isDark ? '#1f2937' : '#ffffff';
+    const border = isDark ? '#334155' : '#e2e8f0';
 
-    const handlePress = (action: () => void) => {
-        if (settings.vibrationEnabled) {
-            void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        }
-        action();
-    };
+    const themeMode = useMemo(() => isDark ? 'dark' : 'light', [isDark]);
 
+    const handlePlay = () => router.push('/game');
     const handleNewGame = () => {
         if (hasProgress) {
             setConfirmNewGame(true);
         } else {
-            restart();
             router.push('/game');
         }
     };
-
     const handleConfirmNewGame = () => {
         setConfirmNewGame(false);
         restart();
@@ -68,225 +52,87 @@ export default function HomeScreen() {
     };
 
     return (
-        <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.bg }]}>
+        <SafeAreaView style={[styles.safe, { backgroundColor: bg }]}>
             <View style={styles.container}>
-                {/* Brand Header */}
-                <Animated.View entering={FadeInDown.duration(400)} style={styles.header}>
-                    <View style={styles.brandRow}>
-                        <View style={[styles.logoIcon, { backgroundColor: theme.accentSoft }]}>
-                            <Ionicons name="infinite" size={30} color={theme.accent} />
+
+                {/* Title */}
+                <View style={styles.top}>
+                    <Text style={[styles.title, { color: text }]}>Infinity</Text>
+                    <Text style={[styles.subtitle, { color: muted }]}>2048 without limits</Text>
+                </View>
+
+                {/* Score */}
+                <View style={[styles.scoreBlock, { backgroundColor: surface, borderColor: border }]}>
+                    <View style={styles.scoreRow}>
+                        <View style={styles.scoreItem}>
+                            <Text style={[styles.scoreLabel, { color: muted }]}>BEST</Text>
+                            <Text style={[styles.scoreValue, { color: text }]}>{game.bestScore.toLocaleString()}</Text>
                         </View>
-                        <View>
-                            <Text style={[styles.brandTitle, { color: theme.text }]}>INFINITY</Text>
-                            <Text style={[styles.brandSubtitle, { color: theme.textMuted }]}>Endless 2048</Text>
+                        <View style={[styles.scoreDivider, { backgroundColor: border }]} />
+                        <View style={styles.scoreItem}>
+                            <Text style={[styles.scoreLabel, { color: muted }]}>MAX TILE</Text>
+                            <Text style={[styles.scoreValue, { color: text }]}>{game.maxTile > 0 ? game.maxTile : '—'}</Text>
                         </View>
                     </View>
-                </Animated.View>
+                </View>
 
-                {/* Hero Showcase Grid */}
-                <Animated.View entering={FadeInDown.delay(100).duration(450)} style={styles.heroSection}>
-                    <View style={[styles.showcaseBoard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                        <View style={styles.showcaseRow}>
-                            <ShowcaseTile value="128" color="#9B59B6" />
-                            <ShowcaseTile value="512" color="#4C6FD7" />
-                        </View>
-                        <View style={styles.showcaseRow}>
-                            <ShowcaseTile value="1024" color="#277DA1" />
-                            <ShowcaseTile value="2048" color="#7C3AED" isGlow />
-                        </View>
-                    </View>
-                </Animated.View>
-
-                {/* Score & Best HUD */}
-                <Animated.View entering={FadeInDown.delay(180).duration(450)} style={styles.statsRow}>
-                    <View style={[styles.statCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                        <View style={styles.statCardHeader}>
-                            <Ionicons name="trophy-outline" size={17} color="#F59E0B" />
-                            <Text style={[styles.statCardLabel, { color: theme.textMuted }]}>BEST</Text>
-                        </View>
-                        <Text style={[styles.statCardValue, { color: theme.text }]}>
-                            {game.bestScore.toLocaleString()}
-                        </Text>
-                    </View>
-
-                    <View style={[styles.statCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                        <View style={styles.statCardHeader}>
-                            <Ionicons name="ribbon-outline" size={17} color={theme.accent} />
-                            <Text style={[styles.statCardLabel, { color: theme.textMuted }]}>MAX TILE</Text>
-                        </View>
-                        <View style={styles.maxTileBadge}>
-                            <Text style={styles.maxTileText}>
-                                {game.maxTile > 0 ? game.maxTile : '—'}
-                            </Text>
-                        </View>
-                    </View>
-                </Animated.View>
-
-                {/* Active Session Status (if progress exists) */}
+                {/* Active game notice */}
                 {hasProgress && (
-                    <Animated.View
-                        entering={FadeIn.delay(240).duration(350)}
-                        style={[styles.resumeBanner, { backgroundColor: theme.accentSoft, borderColor: theme.accent }]}
-                    >
-                        <View style={styles.resumeInfo}>
-                            <View style={styles.pulseDot} />
-                            <Text style={[styles.resumeText, { color: theme.text }]}>Current Run</Text>
-                        </View>
-                        <Text style={[styles.resumeScore, { color: theme.accent }]}>
-                            {game.score.toLocaleString()} pts
-                        </Text>
-                    </Animated.View>
+                    <Text style={[styles.activeNotice, { color: muted }]}>
+                        You have an active game — {game.score.toLocaleString()} pts
+                    </Text>
                 )}
 
-                {/* Action Buttons */}
-                <Animated.View entering={FadeInUp.delay(280).duration(450)} style={styles.actions}>
+                {/* Actions */}
+                <View style={styles.actions}>
                     {hasProgress ? (
                         <>
-                            <Pressable
-                                accessibilityRole="button"
-                                style={({ pressed }) => [
-                                    styles.primaryBtn,
-                                    { backgroundColor: theme.accent },
-                                    pressed && styles.btnPressed,
-                                ]}
-                                onPress={() => handlePress(() => router.push('/game'))}
-                            >
-                                <Ionicons name="play" size={20} color="#FFFFFF" style={styles.btnIcon} />
-                                <Text style={styles.primaryBtnText}>Continue Game</Text>
-                            </Pressable>
-
-                            <Pressable
-                                accessibilityRole="button"
-                                style={({ pressed }) => [
-                                    styles.secondaryBtn,
-                                    { backgroundColor: theme.surface, borderColor: theme.border },
-                                    pressed && styles.btnPressed,
-                                ]}
-                                onPress={() => handlePress(handleNewGame)}
-                            >
-                                <Ionicons name="refresh" size={18} color={theme.text} style={styles.btnIcon} />
-                                <Text style={[styles.secondaryBtnText, { color: theme.text }]}>New Game</Text>
-                            </Pressable>
+                            <Button label="Continue" onPress={handlePlay} />
+                            <Button label="New Game" variant="secondary" onPress={handleNewGame} />
                         </>
                     ) : (
-                        <Pressable
-                            accessibilityRole="button"
-                            style={({ pressed }) => [
-                                styles.primaryBtn,
-                                { backgroundColor: theme.accent },
-                                pressed && styles.btnPressed,
-                            ]}
-                            onPress={() => handlePress(() => router.push('/game'))}
-                        >
-                            <Ionicons name="play" size={22} color="#FFFFFF" style={styles.btnIcon} />
-                            <Text style={styles.primaryBtnText}>Play Now</Text>
-                        </Pressable>
+                        <Button label="Play" onPress={handlePlay} />
                     )}
-
-                    <View style={styles.utilityRow}>
-                        <Pressable
-                            accessibilityRole="button"
-                            style={({ pressed }) => [
-                                styles.utilityBtn,
-                                { backgroundColor: theme.surface, borderColor: theme.border },
-                                pressed && styles.btnPressed,
-                            ]}
-                            onPress={() => handlePress(() => setStatsVisible(true))}
-                        >
-                            <Ionicons name="stats-chart" size={17} color={theme.textMuted} />
-                            <Text style={[styles.utilityBtnText, { color: theme.text }]}>Stats</Text>
-                        </Pressable>
-
-                        <Pressable
-                            accessibilityRole="button"
-                            style={({ pressed }) => [
-                                styles.utilityBtn,
-                                { backgroundColor: theme.surface, borderColor: theme.border },
-                                pressed && styles.btnPressed,
-                            ]}
-                            onPress={() => handlePress(() => router.push('/settings'))}
-                        >
-                            <Ionicons name="settings-sharp" size={17} color={theme.textMuted} />
-                            <Text style={[styles.utilityBtnText, { color: theme.text }]}>Settings</Text>
-                        </Pressable>
+                    <View style={styles.secondRow}>
+                        <View style={styles.flex}>
+                            <Button label="Stats" variant="ghost" themeMode={themeMode} onPress={() => setStatsVisible(true)} />
+                        </View>
+                        <View style={styles.flex}>
+                            <Button label="Settings" variant="ghost" themeMode={themeMode} onPress={() => router.push('/settings')} />
+                        </View>
                     </View>
-                </Animated.View>
+                </View>
+
             </View>
 
-            {/* Stats & Achievements Modal */}
-            <RNModal
-                visible={statsVisible}
-                transparent
-                animationType="fade"
-                onRequestClose={() => setStatsVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <Pressable style={styles.modalBackdrop} onPress={() => setStatsVisible(false)} />
-                    <View style={[styles.modalCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                        <View style={styles.modalHeader}>
-                            <View>
-                                <Text style={[styles.modalTitle, { color: theme.text }]}>Game Statistics</Text>
-                                <Text style={[styles.modalSubtitle, { color: theme.textMuted }]}>
-                                    {unlockedAchievements.length} of {game.achievements.length} achievements unlocked
-                                </Text>
-                            </View>
-                            <Pressable hitSlop={12} onPress={() => setStatsVisible(false)} style={styles.closeBtn}>
-                                <Ionicons name="close" size={22} color={theme.textMuted} />
+            {/* Stats Modal */}
+            <RNModal visible={statsVisible} transparent animationType="fade" onRequestClose={() => setStatsVisible(false)}>
+                <View style={styles.overlay}>
+                    <Pressable style={styles.backdrop} onPress={() => setStatsVisible(false)} />
+                    <View style={[styles.sheet, { backgroundColor: surface, borderColor: border }]}>
+                        <View style={styles.sheetHeader}>
+                            <Text style={[styles.sheetTitle, { color: text }]}>Statistics</Text>
+                            <Pressable hitSlop={12} onPress={() => setStatsVisible(false)}>
+                                <Text style={[styles.closeText, { color: muted }]}>✕</Text>
                             </Pressable>
                         </View>
 
-                        <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
-                            <View style={styles.statGrid}>
-                                <View style={[styles.metricCell, { backgroundColor: theme.surfaceSubtle }]}>
-                                    <Text style={[styles.metricLabel, { color: theme.textMuted }]}>BEST SCORE</Text>
-                                    <Text style={[styles.metricVal, { color: theme.text }]}>{game.bestScore.toLocaleString()}</Text>
-                                </View>
-                                <View style={[styles.metricCell, { backgroundColor: theme.surfaceSubtle }]}>
-                                    <Text style={[styles.metricLabel, { color: theme.textMuted }]}>MAX TILE</Text>
-                                    <Text style={[styles.metricVal, { color: theme.text }]}>{game.maxTile || 0}</Text>
-                                </View>
-                                <View style={[styles.metricCell, { backgroundColor: theme.surfaceSubtle }]}>
-                                    <Text style={[styles.metricLabel, { color: theme.textMuted }]}>CURRENT SCORE</Text>
-                                    <Text style={[styles.metricVal, { color: theme.text }]}>{game.score.toLocaleString()}</Text>
-                                </View>
-                                <View style={[styles.metricCell, { backgroundColor: theme.surfaceSubtle }]}>
-                                    <Text style={[styles.metricLabel, { color: theme.textMuted }]}>TOTAL MOVES</Text>
-                                    <Text style={[styles.metricVal, { color: theme.text }]}>{game.moveCount.toLocaleString()}</Text>
-                                </View>
-                            </View>
+                        <View style={[styles.statGrid, { borderColor: border }]}>
+                            <StatCell label="Best Score" value={game.bestScore.toLocaleString()} text={text} muted={muted} />
+                            <StatCell label="Max Tile" value={game.maxTile > 0 ? String(game.maxTile) : '—'} text={text} muted={muted} />
+                            <StatCell label="Current Score" value={game.score.toLocaleString()} text={text} muted={muted} />
+                            <StatCell label="Total Moves" value={game.moveCount.toLocaleString()} text={text} muted={muted} />
+                        </View>
 
-                            <Text style={[styles.sectionHeading, { color: theme.text }]}>Achievements</Text>
+                        <Text style={[styles.sectionLabel, { color: muted }]}>
+                            Achievements ({game.achievements.filter((a) => a.unlocked).length}/{game.achievements.length})
+                        </Text>
+
+                        <ScrollView style={styles.achScroll} showsVerticalScrollIndicator={false}>
                             {game.achievements.map((item) => (
-                                <View
-                                    key={item.id}
-                                    style={[
-                                        styles.achievementRow,
-                                        { borderBottomColor: theme.border },
-                                        item.unlocked && { opacity: 1 },
-                                    ]}
-                                >
-                                    <View
-                                        style={[
-                                            styles.achievementBadge,
-                                            item.unlocked
-                                                ? { backgroundColor: theme.accent }
-                                                : { backgroundColor: theme.surfaceSubtle },
-                                        ]}
-                                    >
-                                        <Ionicons
-                                            name={item.unlocked ? 'checkmark' : 'lock-closed'}
-                                            size={14}
-                                            color={item.unlocked ? '#FFFFFF' : theme.textMuted}
-                                        />
-                                    </View>
-                                    <View style={styles.achievementTextWrapper}>
-                                        <Text style={[styles.achievementTitle, { color: theme.text }]}>
-                                            {item.title}
-                                        </Text>
-                                        <Text style={[styles.achievementDesc, { color: theme.textMuted }]}>
-                                            {item.description}
-                                        </Text>
-                                    </View>
+                                <View key={item.id} style={[styles.achRow, { borderBottomColor: border, opacity: item.unlocked ? 1 : 0.4 }]}>
+                                    <Text style={[styles.achTitle, { color: text }]}>{item.title}</Text>
+                                    <Text style={[styles.achDesc, { color: muted }]}>{item.description}</Text>
                                 </View>
                             ))}
                         </ScrollView>
@@ -294,33 +140,22 @@ export default function HomeScreen() {
                 </View>
             </RNModal>
 
-            {/* Confirm New Game Dialog */}
-            <RNModal
-                visible={confirmNewGame}
-                transparent
-                animationType="fade"
-                onRequestClose={() => setConfirmNewGame(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <Pressable style={styles.modalBackdrop} onPress={() => setConfirmNewGame(false)} />
-                    <View style={[styles.modalCard, { backgroundColor: theme.surface, borderColor: theme.border, maxWidth: 360 }]}>
-                        <Text style={[styles.modalTitle, { color: theme.text, marginBottom: 8 }]}>Start New Game?</Text>
-                        <Text style={[styles.modalSubtitle, { color: theme.textMuted, marginBottom: 20 }]}>
-                            Starting a new game will reset your current board and score of {game.score.toLocaleString()} points.
+            {/* Confirm New Game */}
+            <RNModal visible={confirmNewGame} transparent animationType="fade" onRequestClose={() => setConfirmNewGame(false)}>
+                <View style={styles.overlay}>
+                    <Pressable style={styles.backdrop} onPress={() => setConfirmNewGame(false)} />
+                    <View style={[styles.sheet, { backgroundColor: surface, borderColor: border, maxWidth: 360 }]}>
+                        <Text style={[styles.sheetTitle, { color: text, marginBottom: 8 }]}>Start a new game?</Text>
+                        <Text style={[styles.confirmBody, { color: muted }]}>
+                            Your current game ({game.score.toLocaleString()} pts) will be lost.
                         </Text>
-                        <View style={styles.confirmRow}>
-                            <Pressable
-                                style={[styles.confirmBtn, { backgroundColor: theme.surfaceSubtle }]}
-                                onPress={() => setConfirmNewGame(false)}
-                            >
-                                <Text style={[styles.confirmBtnText, { color: theme.text }]}>Cancel</Text>
-                            </Pressable>
-                            <Pressable
-                                style={[styles.confirmBtn, { backgroundColor: theme.accent }]}
-                                onPress={handleConfirmNewGame}
-                            >
-                                <Text style={[styles.confirmBtnText, { color: '#FFFFFF' }]}>New Game</Text>
-                            </Pressable>
+                        <View style={styles.confirmActions}>
+                            <View style={styles.flex}>
+                                <Button label="Cancel" variant="secondary" onPress={() => setConfirmNewGame(false)} />
+                            </View>
+                            <View style={styles.flex}>
+                                <Button label="New Game" onPress={handleConfirmNewGame} />
+                            </View>
                         </View>
                     </View>
                 </View>
@@ -329,362 +164,85 @@ export default function HomeScreen() {
     );
 }
 
-function ShowcaseTile({ value, color, isGlow }: { value: string; color: string; isGlow?: boolean }) {
+function StatCell({ label, value, text, muted }: { label: string; value: string; text: string; muted: string }) {
     return (
-        <View
-            style={[
-                styles.showcaseTile,
-                { backgroundColor: color },
-                isGlow && styles.showcaseGlow,
-            ]}
-        >
-            <Text style={styles.showcaseTileText}>{value}</Text>
+        <View style={styles.statCell}>
+            <Text style={[styles.statCellLabel, { color: muted }]}>{label}</Text>
+            <Text style={[styles.statCellValue, { color: text }]}>{value}</Text>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-    },
-    container: {
-        flex: 1,
-        paddingHorizontal: 24,
-        paddingTop: 16,
-        paddingBottom: 24,
-        justifyContent: 'space-between',
-    },
+    safe: { flex: 1 },
+    container: { flex: 1, padding: 28, justifyContent: 'center', gap: 28 },
 
-    /* Header */
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    brandRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    logoIcon: {
-        width: 46,
-        height: 46,
-        borderRadius: 14,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 14,
-    },
-    brandTitle: {
-        fontSize: 22,
-        fontWeight: '900',
-        letterSpacing: 2,
-    },
-    brandSubtitle: {
-        fontSize: 13,
-        fontWeight: '500',
-        marginTop: 1,
-    },
+    top: { gap: 6 },
+    title: { fontSize: 42, fontWeight: '800', letterSpacing: -1.5 },
+    subtitle: { fontSize: 16, fontWeight: '500' },
 
-    /* Showcase */
-    heroSection: {
-        alignItems: 'center',
-        marginVertical: 12,
-    },
-    showcaseBoard: {
-        width: 200,
-        height: 200,
-        borderRadius: 24,
-        padding: 12,
-        borderWidth: 1,
-        justifyContent: 'space-between',
-        elevation: 6,
-        shadowColor: '#000',
-        shadowOpacity: 0.15,
-        shadowRadius: 18,
-        shadowOffset: { width: 0, height: 8 },
-    },
-    showcaseRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        height: '47%',
-    },
-    showcaseTile: {
-        width: '47%',
-        height: '100%',
-        borderRadius: 14,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    showcaseGlow: {
-        shadowColor: '#7C3AED',
-        shadowOpacity: 0.5,
-        shadowRadius: 12,
-        shadowOffset: { width: 0, height: 4 },
-        elevation: 8,
-    },
-    showcaseTileText: {
-        color: '#FFFFFF',
-        fontSize: 20,
-        fontWeight: '900',
-        letterSpacing: -0.5,
-    },
-
-    /* Stats HUD */
-    statsRow: {
-        flexDirection: 'row',
-        gap: 12,
-        marginBottom: 8,
-    },
-    statCard: {
-        flex: 1,
+    scoreBlock: {
         borderRadius: 18,
         borderWidth: 1,
-        padding: 16,
-        justifyContent: 'center',
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOpacity: 0.04,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 4 },
+        padding: 20,
     },
-    statCardHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginBottom: 6,
-    },
-    statCardLabel: {
-        fontSize: 11,
-        fontWeight: '800',
-        letterSpacing: 1,
-    },
-    statCardValue: {
-        fontSize: 26,
-        fontWeight: '900',
-        letterSpacing: -1,
-    },
-    maxTileBadge: {
-        alignSelf: 'flex-start',
-        backgroundColor: '#7C3AED',
-        borderRadius: 8,
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        marginTop: 2,
-    },
-    maxTileText: {
-        color: '#FFFFFF',
-        fontSize: 18,
-        fontWeight: '900',
-    },
+    scoreRow: { flexDirection: 'row', alignItems: 'center' },
+    scoreItem: { flex: 1, alignItems: 'center', gap: 4 },
+    scoreDivider: { width: 1, height: 36, marginHorizontal: 16 },
+    scoreLabel: { fontSize: 11, fontWeight: '700', letterSpacing: 0.8 },
+    scoreValue: { fontSize: 28, fontWeight: '800', letterSpacing: -1 },
 
-    /* Resume Banner */
-    resumeBanner: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        borderRadius: 14,
-        borderWidth: 1,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        marginBottom: 8,
-    },
-    resumeInfo: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    pulseDot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: '#10B981',
-    },
-    resumeText: {
-        fontSize: 13,
-        fontWeight: '700',
-    },
-    resumeScore: {
-        fontSize: 14,
-        fontWeight: '800',
-    },
+    activeNotice: { fontSize: 14, fontWeight: '500' },
 
-    /* Actions */
-    actions: {
-        width: '100%',
-        gap: 10,
-    },
-    primaryBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 16,
-        paddingVertical: 16,
-        shadowColor: '#7C3AED',
-        shadowOpacity: 0.35,
-        shadowRadius: 10,
-        shadowOffset: { width: 0, height: 4 },
-        elevation: 5,
-    },
-    primaryBtnText: {
-        color: '#FFFFFF',
-        fontSize: 17,
-        fontWeight: '800',
-        letterSpacing: 0.3,
-    },
-    secondaryBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 16,
-        borderWidth: 1,
-        paddingVertical: 14,
-    },
-    secondaryBtnText: {
-        fontSize: 15,
-        fontWeight: '700',
-    },
-    btnIcon: {
-        marginRight: 8,
-    },
-    btnPressed: {
-        transform: [{ scale: 0.98 }],
-        opacity: 0.9,
-    },
-    utilityRow: {
-        flexDirection: 'row',
-        gap: 10,
-    },
-    utilityBtn: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 14,
-        borderWidth: 1,
-        paddingVertical: 13,
-        gap: 6,
-    },
-    utilityBtnText: {
-        fontSize: 14,
-        fontWeight: '700',
-    },
+    actions: { gap: 10 },
+    secondRow: { flexDirection: 'row', gap: 10 },
+    flex: { flex: 1 },
 
-    /* Modal */
-    modalOverlay: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+    // Modal / Sheet
+    overlay: { flex: 1, justifyContent: 'flex-end', padding: 16 },
+    backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' },
+    sheet: {
+        borderRadius: 20,
+        borderWidth: 1,
         padding: 24,
-    },
-    modalBackdrop: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.65)',
-    },
-    modalCard: {
-        width: '100%',
-        maxWidth: 440,
         maxHeight: '80%',
-        borderRadius: 24,
-        borderWidth: 1,
-        padding: 24,
-        elevation: 16,
+        elevation: 12,
         shadowColor: '#000',
-        shadowOpacity: 0.3,
-        shadowRadius: 28,
-        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: 0.2,
+        shadowRadius: 20,
+        shadowOffset: { width: 0, height: -4 },
     },
-    modalHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: 18,
-    },
-    modalTitle: {
-        fontSize: 20,
-        fontWeight: '800',
-    },
-    modalSubtitle: {
-        fontSize: 13,
-        fontWeight: '500',
-        marginTop: 2,
-    },
-    closeBtn: {
-        padding: 4,
-    },
-    modalScroll: {
-        flexGrow: 0,
-    },
+    sheetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+    sheetTitle: { fontSize: 20, fontWeight: '800' },
+    closeText: { fontSize: 18 },
+
     statGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 10,
-        marginBottom: 20,
-    },
-    metricCell: {
-        flexBasis: '48%',
-        flexGrow: 1,
+        borderWidth: 1,
         borderRadius: 14,
-        padding: 12,
+        overflow: 'hidden',
+        marginBottom: 24,
     },
-    metricLabel: {
-        fontSize: 10,
-        fontWeight: '800',
-        letterSpacing: 1,
-        marginBottom: 4,
+    statCell: {
+        width: '50%',
+        padding: 14,
+        gap: 2,
     },
-    metricVal: {
-        fontSize: 20,
-        fontWeight: '900',
-        letterSpacing: -0.5,
-    },
-    sectionHeading: {
-        fontSize: 16,
-        fontWeight: '800',
-        marginBottom: 12,
-        marginTop: 4,
-    },
-    achievementRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    statCellLabel: { fontSize: 11, fontWeight: '700', letterSpacing: 0.6 },
+    statCellValue: { fontSize: 22, fontWeight: '800' },
+
+    sectionLabel: { fontSize: 12, fontWeight: '700', letterSpacing: 0.5, marginBottom: 12 },
+
+    achScroll: {},
+    achRow: {
         paddingVertical: 12,
         borderBottomWidth: StyleSheet.hairlineWidth,
+        gap: 2,
     },
-    achievementBadge: {
-        width: 30,
-        height: 30,
-        borderRadius: 15,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 12,
-    },
-    achievementTextWrapper: {
-        flex: 1,
-    },
-    achievementTitle: {
-        fontSize: 14,
-        fontWeight: '700',
-    },
-    achievementDesc: {
-        fontSize: 12,
-        fontWeight: '500',
-        marginTop: 1,
-    },
-    confirmRow: {
-        flexDirection: 'row',
-        gap: 12,
-    },
-    confirmBtn: {
-        flex: 1,
-        borderRadius: 12,
-        paddingVertical: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    confirmBtnText: {
-        fontSize: 15,
-        fontWeight: '700',
-    },
+    achTitle: { fontSize: 14, fontWeight: '700' },
+    achDesc: { fontSize: 13, fontWeight: '400' },
+
+    confirmBody: { fontSize: 15, marginBottom: 20, lineHeight: 22 },
+    confirmActions: { flexDirection: 'row', gap: 10 },
 });
