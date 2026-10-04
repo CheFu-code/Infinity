@@ -15,3 +15,4 @@ android/app/*.jks
 upload.keystore
 upload.keystore.b64
 dist
+.env.local

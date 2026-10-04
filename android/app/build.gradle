@@ -80,6 +80,7 @@ def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInRelea
  */
 def jscFlavor = 'org.webkit:android-jsc:+'
 
+apply from: new File(["node", "--print", "require.resolve('@sentry/react-native/package.json')"].execute().text.trim(), "../sentry.gradle")
 android {
     ndkVersion rootProject.ext.ndkVersion
 
@@ -91,8 +92,8 @@ android {
         applicationId 'co.za.chefu.infinity'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 6
-        versionName findProperty('VERSION_NAME')?.toString() ?: '1.0.1'
+        versionCode 7
+        versionName findProperty('VERSION_NAME')?.toString() ?: '1.0.2'
     }
     signingConfigs {
         debug {

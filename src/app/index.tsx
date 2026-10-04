@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
@@ -53,6 +54,19 @@ export default function HomeScreen() {
 
     return (
         <SafeAreaView style={[styles.safe, { backgroundColor: bg }]}>
+            {/* Header: Settings icon pinned to the top right */}
+            <View style={styles.header}>
+                <Pressable
+                    hitSlop={12}
+                    accessibilityRole="button"
+                    accessibilityLabel="Settings"
+                    onPress={() => router.push('/settings')}
+                    style={({ pressed }) => [styles.settingsIcon, pressed && styles.settingsIconPressed]}
+                >
+                    <Ionicons name="settings-outline" size={26} color={text} />
+                </Pressable>
+            </View>
+
             <View style={styles.container}>
 
                 {/* Title */}
@@ -93,14 +107,7 @@ export default function HomeScreen() {
                     ) : (
                         <Button label="Play" onPress={handlePlay} />
                     )}
-                    <View style={styles.secondRow}>
-                        <View style={styles.flex}>
-                            <Button label="Stats" variant="ghost" themeMode={themeMode} onPress={() => setStatsVisible(true)} />
-                        </View>
-                        <View style={styles.flex}>
-                            <Button label="Settings" variant="ghost" themeMode={themeMode} onPress={() => router.push('/settings')} />
-                        </View>
-                    </View>
+                    <Button label="Stats" variant="ghost" themeMode={themeMode} onPress={() => setStatsVisible(true)} />
                 </View>
 
             </View>
@@ -177,9 +184,13 @@ const styles = StyleSheet.create({
     safe: { flex: 1 },
     container: { flex: 1, padding: 28, justifyContent: 'center', gap: 28 },
 
+    header: { flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 20, paddingTop: 12 },
+
     top: { gap: 6 },
     title: { fontSize: 42, fontWeight: '800', letterSpacing: -1.5 },
     subtitle: { fontSize: 16, fontWeight: '500' },
+    settingsIcon: { padding: 2 },
+    settingsIconPressed: { opacity: 0.5 },
 
     scoreBlock: {
         borderRadius: 18,
@@ -195,7 +206,6 @@ const styles = StyleSheet.create({
     activeNotice: { fontSize: 14, fontWeight: '500' },
 
     actions: { gap: 10 },
-    secondRow: { flexDirection: 'row', gap: 10 },
     flex: { flex: 1 },
 
     // Modal / Sheet

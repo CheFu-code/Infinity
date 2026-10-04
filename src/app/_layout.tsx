@@ -5,8 +5,32 @@ import { ActivityIndicator, StyleSheet, Text, View, useColorScheme } from 'react
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useGameStore } from '../store/gameStore';
+import * as Sentry from '@sentry/react-native';
 
-export default function RootLayout() {
+Sentry.init({
+    dsn: 'https://357385c5b58bd4ce40006d7e7f82bffb@o4512011915296768.ingest.de.sentry.io/4512200301609040',
+
+    // Adds more context data to events (IP address, cookies, user, etc.)
+    // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
+    sendDefaultPii: true,
+
+    // Enable Logs
+    enableLogs: true,
+
+    // Configure Session Replay
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1,
+    integrations: [
+        Sentry.mobileReplayIntegration({
+            maskAllText: false,
+            maskAllImages: false,
+            maskAllVectors: false,
+        }),
+        Sentry.feedbackIntegration(),
+    ],
+});
+
+function RootLayout() {
     const colorScheme = useColorScheme();
     const theme = useGameStore((state) => state.settings.theme);
     const isHydrated = useGameStore((state) => state.isHydrated);
@@ -54,3 +78,5 @@ const styles = StyleSheet.create({
     lightText: { color: '#0f172a' },
     darkText: { color: '#f8fafc' },
 });
+
+export default Sentry.wrap(RootLayout);
