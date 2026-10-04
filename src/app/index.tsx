@@ -58,7 +58,7 @@ export default function HomeScreen() {
                 {/* Title */}
                 <View style={styles.top}>
                     <Text style={[styles.title, { color: text }]}>Infinity</Text>
-                    <Text style={[styles.subtitle, { color: muted }]}>2048 without limits</Text>
+                    {/* <Text style={[styles.subtitle, { color: muted }]}>2048 without limits</Text> */}
                 </View>
 
                 {/* Score */}
