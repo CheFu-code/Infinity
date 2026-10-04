@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
     Modal as RNModal,
     Pressable,
@@ -36,8 +36,6 @@ export default function HomeScreen() {
     const surface = isDark ? '#1f2937' : '#ffffff';
     const border = isDark ? '#334155' : '#e2e8f0';
 
-    const themeMode = useMemo(() => isDark ? 'dark' : 'light', [isDark]);
-
     const handlePlay = () => router.push('/game');
     const handleNewGame = () => {
         if (hasProgress) {
@@ -54,16 +52,25 @@ export default function HomeScreen() {
 
     return (
         <SafeAreaView style={[styles.safe, { backgroundColor: bg }]}>
-            {/* Header: Settings icon pinned to the top right */}
+            {/* Header: Stats and Settings icons pinned to the top right */}
             <View style={styles.header}>
+                <Pressable
+                    hitSlop={12}
+                    accessibilityRole="button"
+                    accessibilityLabel="Statistics"
+                    onPress={() => setStatsVisible(true)}
+                    style={({ pressed }) => [styles.headerIcon, pressed && styles.headerIconPressed]}
+                >
+                    <Ionicons name="stats-chart-outline" size={24} color={text} />
+                </Pressable>
                 <Pressable
                     hitSlop={12}
                     accessibilityRole="button"
                     accessibilityLabel="Settings"
                     onPress={() => router.push('/settings')}
-                    style={({ pressed }) => [styles.settingsIcon, pressed && styles.settingsIconPressed]}
+                    style={({ pressed }) => [styles.headerIcon, pressed && styles.headerIconPressed]}
                 >
-                    <Ionicons name="settings-outline" size={26} color={text} />
+                    <Ionicons name="settings-outline" size={24} color={text} />
                 </Pressable>
             </View>
 
@@ -72,7 +79,6 @@ export default function HomeScreen() {
                 {/* Title */}
                 <View style={styles.top}>
                     <Text style={[styles.title, { color: text }]}>Infinity</Text>
-                    {/* <Text style={[styles.subtitle, { color: muted }]}>2048 without limits</Text> */}
                 </View>
 
                 {/* Score */}
@@ -100,14 +106,17 @@ export default function HomeScreen() {
                 {/* Actions */}
                 <View style={styles.actions}>
                     {hasProgress ? (
-                        <>
-                            <Button label="Continue" onPress={handlePlay} />
-                            <Button label="New Game" variant="secondary" onPress={handleNewGame} />
-                        </>
+                        <View style={styles.actionRow}>
+                            <View style={styles.flex}>
+                                <Button label="New Game" variant="secondary" onPress={handleNewGame} />
+                            </View>
+                            <View style={styles.flex}>
+                                <Button label="Continue" onPress={handlePlay} />
+                            </View>
+                        </View>
                     ) : (
                         <Button label="Play" onPress={handlePlay} />
                     )}
-                    <Button label="Stats" variant="ghost" themeMode={themeMode} onPress={() => setStatsVisible(true)} />
                 </View>
 
             </View>
@@ -184,13 +193,13 @@ const styles = StyleSheet.create({
     safe: { flex: 1 },
     container: { flex: 1, padding: 28, justifyContent: 'center', gap: 28 },
 
-    header: { flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 20, paddingTop: 12 },
+    header: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', gap: 16, paddingHorizontal: 20, paddingTop: 12 },
+    headerIcon: { padding: 2 },
+    headerIconPressed: { opacity: 0.5 },
 
     top: { gap: 6 },
     title: { fontSize: 42, fontWeight: '800', letterSpacing: -1.5 },
     subtitle: { fontSize: 16, fontWeight: '500' },
-    settingsIcon: { padding: 2 },
-    settingsIconPressed: { opacity: 0.5 },
 
     scoreBlock: {
         borderRadius: 18,
@@ -206,6 +215,7 @@ const styles = StyleSheet.create({
     activeNotice: { fontSize: 14, fontWeight: '500' },
 
     actions: { gap: 10 },
+    actionRow: { flexDirection: 'row', gap: 10 },
     flex: { flex: 1 },
 
     // Modal / Sheet
