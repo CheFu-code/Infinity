@@ -14,9 +14,9 @@ export default function SettingsScreen() {
     const resetProgress = useGameStore((state) => state.resetProgress);
     const [confirmReset, setConfirmReset] = useState(false);
 
-    const resolvedTheme = useMemo(() => {
+    const resolvedTheme = useMemo<'light' | 'dark'>(() => {
         if (settings.theme === "system") {
-            return colorScheme ?? "light";
+            return colorScheme === "dark" ? "dark" : "light";
         }
         return settings.theme;
     }, [colorScheme, settings.theme]);

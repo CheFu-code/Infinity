@@ -54,7 +54,7 @@ export function Modal({ visible, title, onClose, children, theme, dismissible = 
 
 const styles = StyleSheet.create({
   root: { flex: 1, width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', padding: 24 },
-  backdrop: { ...StyleSheet.absoluteFillObject, zIndex: 0, backgroundColor: '#00000066' },
+  backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, backgroundColor: '#00000066' },
   card: { width: '100%', maxWidth: 420, alignSelf: 'center', zIndex: 1, borderRadius: 20, padding: 20, elevation: 12, shadowColor: '#000', shadowOpacity: 0.24, shadowRadius: 24, shadowOffset: { width: 0, height: 12 } },
   cardLight: { backgroundColor: '#ffffff' },
   cardDark: { backgroundColor: '#0b1220' },

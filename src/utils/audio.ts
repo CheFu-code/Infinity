@@ -1,20 +1,12 @@
-import { Audio } from 'expo-av';
+import { createAudioPlayer } from 'expo-audio';
 
 const mergeAsset = require('../assets/merge.wav');
 const winAsset = require('../assets/win.wav');
 
 async function playSound(asset: any): Promise<void> {
     try {
-        const sound = new Audio.Sound();
-
-        await sound.loadAsync(asset);
-        await sound.playAsync();
-
-        sound.setOnPlaybackStatusUpdate((status) => {
-            if (status.isLoaded && status.didJustFinish) {
-                void sound.unloadAsync();
-            }
-        });
+        const player = createAudioPlayer(asset);
+        player.play();
     } catch {
         // Ignore audio failures so they don't crash the app.
     }
