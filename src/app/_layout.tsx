@@ -8,10 +8,10 @@ import {
   StyleSheet,
   Text,
   View,
-  useColorScheme
+  useColorScheme,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import mobileAds from "react-native-google-mobile-ads";
+import mobileAds, { AdsConsent } from "react-native-google-mobile-ads";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useInAppUpdates } from "../hooks/useInAppUpdates";
 import { useGameStore } from "../store/gameStore";
@@ -54,11 +54,26 @@ function RootLayout() {
   }, [initialize, isHydrated]);
 
   useEffect(() => {
-    mobileAds()
-      .initialize()
-      .then(() => {
-        console.log("AdMob initialized");
-      });
+    const initializeAdMob = async () => {
+      try {
+        await AdsConsent.gatherConsent();
+
+        const { canRequestAds } = await AdsConsent.getConsentInfo();
+
+        if (canRequestAds) {
+          await mobileAds().initialize();
+
+          Sentry.captureMessage("AdMob initialized successfully", "info");
+        }
+      } catch (error) {
+        Sentry.withScope((scope) => {
+          scope.setTag("context", "admob_consent_gathering");
+          Sentry.captureException(error);
+        });
+      }
+    };
+
+    void initializeAdMob();
   }, []);
 
   if (!isHydrated) {

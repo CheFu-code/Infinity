@@ -39,7 +39,7 @@
             [
                 "expo-notifications",
                 {
-                    "icon": "./assets/icon-logo.png",
+                    "icon": "src/assets/icon-logo.png",
                     "color": "#6366f1"
                 }
             ],
@@ -55,7 +55,8 @@
                 "react-native-google-mobile-ads",
                 {
                     "androidAppId": "ca-app-pub-8952058057579255~5804416438",
-                    "iosAppId": "ca-app-pub-8952058057579255~5804416438"
+                    "iosAppId": "ca-app-pub-8952058057579255~5804416438",
+                    "delay_app_measurement_init": true
                 }
             ]
         ],
