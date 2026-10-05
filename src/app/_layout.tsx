@@ -1,20 +1,20 @@
+import { LoadingScreen } from "@/components/LoadingScreen";
+import * as Sentry from "@sentry/react-native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useMemo } from "react";
 import {
-  ActivityIndicator,
+  Pressable,
   StyleSheet,
   Text,
   View,
-  useColorScheme,
-  Pressable,
+  useColorScheme
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import { useGameStore } from "../store/gameStore";
-import * as Sentry from "@sentry/react-native";
-import { useInAppUpdates } from "../hooks/useInAppUpdates";
 import mobileAds from "react-native-google-mobile-ads";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { useInAppUpdates } from "../hooks/useInAppUpdates";
+import { useGameStore } from "../store/gameStore";
 
 Sentry.init({
   dsn: "https://357385c5b58bd4ce40006d7e7f82bffb@o4512011915296768.ingest.de.sentry.io/4512200301609040",
@@ -66,20 +66,7 @@ function RootLayout() {
       <SafeAreaProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <StatusBar style={resolvedTheme === "dark" ? "light" : "dark"} />
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator
-              size="large"
-              color={resolvedTheme === "dark" ? "#f8fafc" : "#7c3aed"}
-            />
-            <Text
-              style={[
-                styles.loadingText,
-                resolvedTheme === "dark" ? styles.darkText : styles.lightText,
-              ]}
-            >
-              Loading game…
-            </Text>
-          </View>
+          <LoadingScreen isDark={resolvedTheme === "dark"} />
         </GestureHandlerRootView>
       </SafeAreaProvider>
     );
@@ -103,13 +90,15 @@ function RootLayout() {
             <View
               style={[
                 styles.snackbar,
-                resolvedTheme === 'dark' ? styles.snackbarDark : styles.snackbarLight,
+                resolvedTheme === "dark"
+                  ? styles.snackbarDark
+                  : styles.snackbarLight,
               ]}
             >
               <Text
                 style={[
                   styles.snackbarText,
-                  resolvedTheme === 'dark' ? styles.darkText : styles.lightText,
+                  resolvedTheme === "dark" ? styles.darkText : styles.lightText,
                 ]}
               >
                 Update downloaded! Restart to apply.
