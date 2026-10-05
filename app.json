@@ -4,7 +4,6 @@
     "slug": "infinity",
     "version": "1.0.2",
     "scheme": "infinity",
-    "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "platforms": [
       "android"
@@ -28,6 +27,15 @@
       "expo-asset",
       "expo-font",
       "expo-updates",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          }
+        }
+      ],
       [
         "@sentry/react-native/expo",
         {
