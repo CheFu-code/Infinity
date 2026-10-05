@@ -116,7 +116,7 @@ function RootLayout() {
                   resolvedTheme === "dark" ? styles.darkText : styles.lightText,
                 ]}
               >
-                Update downloaded! Restart to apply.
+                The update has successfully downloaded. Please restart to apply.
               </Text>
               <Pressable onPress={installUpdate} style={styles.snackbarButton}>
                 <Text style={styles.snackbarButtonText}>Restart</Text>
