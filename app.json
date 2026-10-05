@@ -1,80 +1,87 @@
 {
-  "expo": {
-    "name": "Infinity",
-    "slug": "infinity",
-    "version": "1.0.2",
-    "scheme": "infinity",
-    "userInterfaceStyle": "automatic",
-    "platforms": [
-      "android"
-    ],
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "icon": "src/assets/logo.png",
-    "updates": {
-      "enabled": true,
-      "checkAutomatically": "ON_LOAD",
-      "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/3f9617ae-4c7d-430e-8a22-48902524e2bf",
-      "requestHeaders": {
-        "expo-channel-name": "production"
-      }
+    "expo": {
+        "name": "Infinity",
+        "slug": "infinity",
+        "version": "1.0.2",
+        "scheme": "infinity",
+        "userInterfaceStyle": "automatic",
+        "platforms": [
+            "android"
+        ],
+        "assetBundlePatterns": [
+            "**/*"
+        ],
+        "icon": "src/assets/logo.png",
+        "updates": {
+            "enabled": true,
+            "checkAutomatically": "ON_LOAD",
+            "fallbackToCacheTimeout": 0,
+            "url": "https://u.expo.dev/3f9617ae-4c7d-430e-8a22-48902524e2bf",
+            "requestHeaders": {
+                "expo-channel-name": "production"
+            }
+        },
+        "runtimeVersion": "1.0.2",
+        "plugins": [
+            "expo-router",
+            "expo-asset",
+            "expo-font",
+            "expo-updates",
+            [
+                "expo-build-properties",
+                {
+                    "android": {
+                        "enableMinifyInReleaseBuilds": true,
+                        "enableShrinkResourcesInReleaseBuilds": true
+                    }
+                }
+            ],
+            [
+                "expo-notifications",
+                {
+                    "icon": "./assets/icon-logo.png",
+                    "color": "#6366f1"
+                }
+            ],
+            [
+                "@sentry/react-native/expo",
+                {
+                    "url": "https://sentry.io/",
+                    "project": "infinity",
+                    "organization": "chefu-technologies"
+                }
+            ],
+            [
+                "react-native-google-mobile-ads",
+                {
+                    "androidAppId": "ca-app-pub-8952058057579255~5804416438",
+                    "iosAppId": "ca-app-pub-8952058057579255~5804416438"
+                }
+            ]
+        ],
+        "experiments": {
+            "typedRoutes": true
+        },
+        "android": {
+            "package": "co.za.chefu.infinity",
+            "versionCode": 7,
+            "adaptiveIcon": {
+                "foregroundImage": "src/assets/icon-logo.png",
+                "backgroundColor": "#FFFFFF"
+            }
+        },
+        "extra": {
+            "router": {
+                "origin": false
+            },
+            "eas": {
+                "projectId": "3f9617ae-4c7d-430e-8a22-48902524e2bf"
+            }
+        },
+        "owner": "chefu"
     },
-    "runtimeVersion": "1.0.2",
-    "plugins": [
-      "expo-router",
-      "expo-asset",
-      "expo-font",
-      "expo-updates",
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "enableMinifyInReleaseBuilds": true,
-            "enableShrinkResourcesInReleaseBuilds": true
-          }
-        }
-      ],
-      [
-        "@sentry/react-native/expo",
-        {
-          "url": "https://sentry.io/",
-          "project": "infinity",
-          "organization": "chefu-technologies"
-        }
-      ],
-      [
-        "react-native-google-mobile-ads",
-        {
-          "androidAppId": "ca-app-pub-8952058057579255~5804416438",
-          "iosAppId": "ca-app-pub-8952058057579255~5804416438"
-        }
-      ]
-    ],
-    "experiments": {
-      "typedRoutes": true
-    },
-    "android": {
-      "package": "co.za.chefu.infinity",
-      "versionCode": 7,
-      "adaptiveIcon": {
-        "foregroundImage": "src/assets/icon-logo.png",
-        "backgroundColor": "#FFFFFF"
-      }
-    },
-    "extra": {
-      "router": {
-        "origin": false
-      },
-      "eas": {
-        "projectId": "3f9617ae-4c7d-430e-8a22-48902524e2bf"
-      }
-    },
-    "owner": "chefu"
-  },
-  "react-native-google-mobile-ads": {
-    "android_app_id": "ca-app-pub-8952058057579255~5804416438",
-    "ios_app_id": "ca-app-pub-8952058057579255~5804416438"
-  }
+    "react-native-google-mobile-ads": {
+        "android_app_id": "ca-app-pub-8952058057579255~5804416438",
+        "ios_app_id": "ca-app-pub-8952058057579255~5804416438"
+    }
 }

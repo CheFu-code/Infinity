@@ -1,5 +1,6 @@
 import { Platform } from "react-native";
 import { BannerAd, BannerAdSize } from "react-native-google-mobile-ads";
+import * as Sentry from "@sentry/react-native";
 
 const BANNER_AD_UNIT_ID = "ca-app-pub-8952058057579255/7287204281";
 
@@ -16,7 +17,11 @@ export function BannerAdComponent() {
                 requestNonPersonalizedAdsOnly: true,
             }}
             onAdFailedToLoad={(error) => {
-                console.log("Banner failed to load:", error);
+                Sentry.captureException(error, {
+                    extra: {
+                        context: "Banner ad failed to load",
+                    },
+                });
             }}
         />
     );

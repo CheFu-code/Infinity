@@ -6,8 +6,9 @@ import SpInAppUpdates, {
     AndroidInstallStatus,
 } from 'sp-react-native-in-app-updates';
 import Constants from 'expo-constants';
+import * as Sentry from "@sentry/react-native";
 
-const inAppUpdates = new SpInAppUpdates(false); // false = production
+const inAppUpdates = new SpInAppUpdates(false);
 
 export function useInAppUpdates() {
     const [snackbarVisible, setSnackbarVisible] = useState(false);
@@ -39,7 +40,11 @@ export function useInAppUpdates() {
                 inAppUpdates.addStatusUpdateListener(onStatusUpdate);
             }
         } catch (error) {
-            console.log('Update check failed:', error);
+            Sentry.captureException(error, {
+                extra: {
+                    context: "Update check failed",
+                },
+            });
         }
     };
 
