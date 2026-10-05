@@ -1,6 +1,6 @@
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect, useMemo } from 'react';
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useEffect, useMemo } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -8,15 +8,16 @@ import {
   View,
   useColorScheme,
   Pressable,
-} from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { useGameStore } from '../store/gameStore';
-import * as Sentry from '@sentry/react-native';
-// import { useInAppUpdates } from '../hooks/useInAppUpdates';
+} from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { useGameStore } from "../store/gameStore";
+import * as Sentry from "@sentry/react-native";
+import { useInAppUpdates } from "../hooks/useInAppUpdates";
+import mobileAds from "react-native-google-mobile-ads";
 
 Sentry.init({
-  dsn: 'https://357385c5b58bd4ce40006d7e7f82bffb@o4512011915296768.ingest.de.sentry.io/4512200301609040',
+  dsn: "https://357385c5b58bd4ce40006d7e7f82bffb@o4512011915296768.ingest.de.sentry.io/4512200301609040",
   sendDefaultPii: true,
   enableLogs: true,
   replaysSessionSampleRate: 0.1,
@@ -37,12 +38,11 @@ function RootLayout() {
   const isHydrated = useGameStore((state) => state.isHydrated);
   const initialize = useGameStore((state) => state.initialize);
 
-  // In-App Updates
-  // const { snackbarVisible, installUpdate } = useInAppUpdates();
+  const { snackbarVisible, installUpdate } = useInAppUpdates();
 
   const resolvedTheme = useMemo(() => {
-    if (theme === 'system') {
-      return colorScheme ?? 'light';
+    if (theme === "system") {
+      return colorScheme ?? "light";
     }
     return theme;
   }, [colorScheme, theme]);
@@ -53,20 +53,28 @@ function RootLayout() {
     }
   }, [initialize, isHydrated]);
 
+  useEffect(() => {
+    mobileAds()
+      .initialize()
+      .then(() => {
+        console.log("AdMob initialized");
+      });
+  }, []);
+
   if (!isHydrated) {
     return (
       <SafeAreaProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
-          <StatusBar style={resolvedTheme === 'dark' ? 'light' : 'dark'} />
+          <StatusBar style={resolvedTheme === "dark" ? "light" : "dark"} />
           <View style={styles.loadingContainer}>
             <ActivityIndicator
               size="large"
-              color={resolvedTheme === 'dark' ? '#f8fafc' : '#7c3aed'}
+              color={resolvedTheme === "dark" ? "#f8fafc" : "#7c3aed"}
             />
             <Text
               style={[
                 styles.loadingText,
-                resolvedTheme === 'dark' ? styles.darkText : styles.lightText,
+                resolvedTheme === "dark" ? styles.darkText : styles.lightText,
               ]}
             >
               Loading game…
@@ -80,17 +88,17 @@ function RootLayout() {
   return (
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar style={resolvedTheme === 'dark' ? 'light' : 'dark'} />
+        <StatusBar style={resolvedTheme === "dark" ? "light" : "dark"} />
         <Stack
           screenOptions={{
             headerShown: false,
             contentStyle: {
-              backgroundColor: resolvedTheme === 'dark' ? '#111827' : '#f8fafc',
+              backgroundColor: resolvedTheme === "dark" ? "#111827" : "#f8fafc",
             },
           }}
         />
 
-        {/* {snackbarVisible && (
+        {snackbarVisible && (
           <View style={styles.snackbarContainer}>
             <View
               style={[
@@ -111,7 +119,7 @@ function RootLayout() {
               </Pressable>
             </View>
           </View>
-        )} */}
+        )}
       </GestureHandlerRootView>
     </SafeAreaProvider>
   );
@@ -120,60 +128,60 @@ function RootLayout() {
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     gap: 12,
   },
   loadingText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   lightText: {
-    color: '#0f172a',
+    color: "#0f172a",
   },
   darkText: {
-    color: '#f8fafc',
+    color: "#f8fafc",
   },
   snackbarContainer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 40,
     left: 16,
     right: 16,
   },
   snackbar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 12,
     elevation: 6,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
   },
   snackbarLight: {
-    backgroundColor: '#1e293b',
+    backgroundColor: "#1e293b",
   },
   snackbarDark: {
-    backgroundColor: '#334155',
+    backgroundColor: "#334155",
   },
   snackbarText: {
     flex: 1,
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     marginRight: 12,
   },
   snackbarButton: {
-    backgroundColor: '#7c3aed',
+    backgroundColor: "#7c3aed",
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 8,
   },
   snackbarButtonText: {
-    color: '#ffffff',
-    fontWeight: '600',
+    color: "#ffffff",
+    fontWeight: "600",
     fontSize: 14,
   },
 });

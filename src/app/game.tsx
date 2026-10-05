@@ -16,6 +16,7 @@ import { ProfileModal } from "@/components/modals/ProfileModal";
 import { PauseModal } from "@/components/modals/PauseModal";
 import { Board } from "@/components/Board";
 import { ScoreBoard } from "@/components/ScoreBoard";
+import { BannerAdComponent } from "@/components/ads/BannerAdComponent";
 
 export default function GameScreen() {
     const colorScheme = useColorScheme();
@@ -98,6 +99,7 @@ export default function GameScreen() {
                 styles.safeArea,
                 isDark ? styles.darkBackground : styles.lightBackground,
             ]}
+            edges={["top", "left", "right"]}
         >
             <View style={styles.container}>
                 <GameHeader
@@ -154,6 +156,8 @@ export default function GameScreen() {
                 />
             </View>
 
+            <BannerAdComponent />
+
             <PauseModal
                 visible={paused}
                 theme={resolvedTheme}
@@ -176,7 +180,12 @@ const styles = StyleSheet.create({
     safeArea: { flex: 1 },
     lightBackground: { backgroundColor: "#f8fafc" },
     darkBackground: { backgroundColor: "#111827" },
-    container: { flex: 1, padding: 20, gap: 16 },
+    container: {
+        flex: 1,
+        padding: 20,
+        gap: 16,
+        paddingBottom: 8, 
+    },
     loading: { flex: 1, justifyContent: "center", alignItems: "center" },
     loadingText: { fontSize: 18 },
     lightText: { color: "#0f172a" },
