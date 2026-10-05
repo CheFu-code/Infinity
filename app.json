@@ -7,7 +7,6 @@
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "platforms": [
-      "ios",
       "android"
     ],
     "assetBundlePatterns": [
@@ -40,7 +39,8 @@
       [
         "react-native-google-mobile-ads",
         {
-          "androidAppId": "ca-app-pub-8952058057579255~5804416438"
+          "androidAppId": "ca-app-pub-8952058057579255~5804416438",
+          "iosAppId": "ca-app-pub-8952058057579255~5804416438"
         }
       ]
     ],
@@ -64,5 +64,9 @@
       }
     },
     "owner": "chefu"
+  },
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-8952058057579255~5804416438",
+    "ios_app_id": "ca-app-pub-8952058057579255~5804416438"
   }
 }
