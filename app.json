@@ -36,6 +36,12 @@
           "project": "infinity",
           "organization": "chefu-technologies"
         }
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-8952058057579255~5804416438"
+        }
       ]
     ],
     "experiments": {

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { StyleSheet, Switch, Text, View, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "../components/Button";
-import { Modal } from "../components/Modal";
+import { Modal } from "../components/modals/Modal";
 import { useGameStore } from "../store/gameStore";
 
 export default function SettingsScreen() {
