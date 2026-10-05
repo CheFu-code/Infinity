@@ -1,22 +1,29 @@
-import { useMemo, useState, useEffect } from "react";
-import { StyleSheet, Text, View, useColorScheme } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { useEffect, useMemo, useState } from "react";
+import {
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    useColorScheme
+} from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useGame } from "@/hooks/useGame";
 import { useInfinityAuth } from "@/hooks/useInfinityAuth";
 import { useGameStore } from "@/store/gameStore";
 
-import { GameHeader } from "@/components/GameHeader";
-import { GameActions } from "@/components/GameActions";
-import { AchievementsList } from "@/components/AchievementsList";
-import { VictoryModal } from "@/components/modals/VictoryModal";
-import { GameOverModal } from "@/components/modals/GameOverModal";
-import { ProfileModal } from "@/components/modals/ProfileModal";
-import { PauseModal } from "@/components/modals/PauseModal";
 import { Board } from "@/components/Board";
+import { GameActions } from "@/components/GameActions";
+import { GameHeader } from "@/components/GameHeader";
 import { ScoreBoard } from "@/components/ScoreBoard";
 import { BannerAdComponent } from "@/components/ads/BannerAdComponent";
+import AchievementsModal from "@/components/modals/AchievementsModal";
+import { GameOverModal } from "@/components/modals/GameOverModal";
+import { PauseModal } from "@/components/modals/PauseModal";
+import { ProfileModal } from "@/components/modals/ProfileModal";
+import { VictoryModal } from "@/components/modals/VictoryModal";
 
 export default function GameScreen() {
     const colorScheme = useColorScheme();
@@ -26,6 +33,7 @@ export default function GameScreen() {
 
     const [paused, setPaused] = useState(false);
     const [profileVisible, setProfileVisible] = useState(false);
+    const [achievementsVisible, setAchievementsVisible] = useState(false);
     const [authBusy, setAuthBusy] = useState(false);
     const [authError, setAuthError] = useState("");
 
@@ -99,64 +107,96 @@ export default function GameScreen() {
                 styles.safeArea,
                 isDark ? styles.darkBackground : styles.lightBackground,
             ]}
-            edges={["top", "left", "right"]}
+            edges={["top", "left", "right", "bottom"]}
         >
-            <View style={styles.container}>
-                <GameHeader
-                    isDark={isDark}
-                    session={session}
-                    authBusy={authBusy}
-                    isChecking={isChecking}
-                    onLogin={handleLogin}
-                    onOpenProfile={() => setProfileVisible(true)}
-                />
+            <View style={styles.mainWrapper}>
+                <View style={styles.container}>
+                    <GameHeader
+                        isDark={isDark}
+                        session={session}
+                        authBusy={authBusy}
+                        isChecking={isChecking}
+                        onLogin={handleLogin}
+                        onOpenProfile={() => setProfileVisible(true)}
+                    />
 
-                {authError ? <Text style={styles.authError}>{authError}</Text> : null}
+                    {authError ? <Text style={styles.authError}>{authError}</Text> : null}
 
-                <ScoreBoard
-                    score={game.score}
-                    bestScore={game.bestScore}
-                    moveCount={game.moveCount}
-                    maxTile={game.maxTile}
-                />
+                    <ScoreBoard
+                        score={game.score}
+                        bestScore={game.bestScore}
+                        moveCount={game.moveCount}
+                        maxTile={game.maxTile}
+                    />
 
-                <Animated.View
-                    entering={FadeInDown.delay(80).duration(260)}
-                    style={[
-                        styles.boardCard,
-                        isDark
-                            ? { backgroundColor: "#111827" }
-                            : { backgroundColor: "#ffffff" },
-                    ]}
-                >
-                    <Board onSwipe={move} />
-                </Animated.View>
+                    <Animated.View
+                        entering={FadeInDown.delay(80).duration(260)}
+                        style={[
+                            styles.boardCard,
+                            isDark
+                                ? { backgroundColor: "#111827" }
+                                : { backgroundColor: "#ffffff" },
+                        ]}
+                    >
+                        <Board onSwipe={move} />
+                    </Animated.View>
 
-                <GameActions
-                    onRestart={restart}
-                    onUndo={undo}
-                    canUndo={game.history.length > 0}
-                />
+                    <GameActions
+                        onRestart={restart}
+                        onUndo={undo}
+                        canUndo={game.history.length > 0}
+                    />
 
-                <AchievementsList achievements={game.achievements} isDark={isDark} />
+                    <TouchableOpacity
+                        style={[
+                            styles.achievementsButton,
+                            isDark ? styles.buttonDark : styles.buttonLight,
+                        ]}
+                        onPress={() => setAchievementsVisible(true)}
+                        activeOpacity={0.7}
+                    >
+                        <View style={styles.buttonContent}>
+                            <Ionicons
+                                name="trophy"
+                                size={18}
+                                color={isDark ? "#f59e0b" : "#d97706"}
+                            />
+                            <Text
+                                style={[
+                                    styles.achievementsButtonText,
+                                    isDark ? styles.darkText : styles.lightText,
+                                ]}
+                            >
+                                Achievements ({game.achievements.filter((a) => a.unlocked).length}/{game.achievements.length})
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
 
-                <VictoryModal
-                    visible={game.status === "won" && !game.keepPlaying}
-                    theme={resolvedTheme}
-                    onContinue={continueAfterWin}
-                    onRestart={restart}
-                />
-
-                <GameOverModal
-                    visible={game.status === "over"}
-                    theme={resolvedTheme}
-                    score={game.score}
-                    maxTile={game.maxTile}
-                    onRestart={restart}
-                />
+                <BannerAdComponent />
             </View>
 
-            <BannerAdComponent />
+            <AchievementsModal
+                achievementsVisible={achievementsVisible}
+                setAchievementsVisible={setAchievementsVisible}
+                game={game}
+                isDark={isDark}
+            />
+
+            <VictoryModal
+                visible={game.status === "won" && !game.keepPlaying}
+                theme={resolvedTheme}
+                onContinue={continueAfterWin}
+                onRestart={restart}
+            />
+
+            <GameOverModal
+                visible={game.status === "over"}
+                theme={resolvedTheme}
+                score={game.score}
+                maxTile={game.maxTile}
+                onRestart={restart}
+            />
 
             <PauseModal
                 visible={paused}
@@ -180,11 +220,15 @@ const styles = StyleSheet.create({
     safeArea: { flex: 1 },
     lightBackground: { backgroundColor: "#f8fafc" },
     darkBackground: { backgroundColor: "#111827" },
+    mainWrapper: {
+        flex: 1,
+        justifyContent: "space-between",
+    },
     container: {
         flex: 1,
         padding: 20,
         gap: 16,
-        paddingBottom: 8, 
+        justifyContent: "space-between",
     },
     loading: { flex: 1, justifyContent: "center", alignItems: "center" },
     loadingText: { fontSize: 18 },
@@ -201,4 +245,27 @@ const styles = StyleSheet.create({
         elevation: 6,
     },
     authError: { color: "#dc2626", fontSize: 13, textAlign: "right" },
+
+    achievementsButton: {
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 14,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    buttonContent: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
+    },
+    buttonLight: { backgroundColor: "#e2e8f0" },
+    buttonDark: { backgroundColor: "#1f2937" },
+    achievementsButtonText: {
+        fontSize: 14,
+        fontWeight: "600",
+    },
+
+    
+    
+   
 });
