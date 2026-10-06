@@ -1,4 +1,5 @@
 export type Direction = 'up' | 'down' | 'left' | 'right';
+export type GameLevel = 'easy' | 'medium' | 'hard';
 
 export type TileValue = number | null;
 export type Board = Array<Array<TileValue>>;
@@ -21,6 +22,9 @@ export interface Achievement {
 }
 
 export interface GameState extends GameSnapshot {
+  level: GameLevel;
+  levelStartedAt: number;
+  lastOpenedAt: number;
   bestScore: number;
   history: GameSnapshot[];
   achievements: Achievement[];

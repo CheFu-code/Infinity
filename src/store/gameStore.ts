@@ -2,6 +2,7 @@ import * as Haptics from 'expo-haptics';
 import { create } from 'zustand';
 import { clearProgress, createDefaultSettings, createInitialGameState, keepPlaying, loadState, makeMove, restartGame, restoreSnapshot, saveState, undoMove } from '../game/engine';
 import { Direction, GameSettings, GameSnapshot, GameState } from '../game/types';
+import { APP_INACTIVITY_DEMOTION_MS, getNextLevel, getPreviousLevel, LEVELS } from '../game/levels';
 import { playMergeSound, playWinSound } from '../utils/audio';
 import { fetchInfinityState, saveInfinityState } from '../lib/infinityAuth';
 
@@ -37,11 +38,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
     initialize: async () => {
         const persisted = await loadState();
         if (persisted) {
-            set({ game: persisted.game, settings: persisted.settings, isHydrated: true });
+            const now = Date.now();
+            const shouldDemote = now - persisted.game.lastOpenedAt >= APP_INACTIVITY_DEMOTION_MS;
+            const level = shouldDemote ? getPreviousLevel(persisted.game.level) : persisted.game.level;
+            const game = shouldDemote && level !== persisted.game.level
+                ? { ...createInitialGameState(level, now), bestScore: persisted.game.bestScore }
+                : { ...persisted.game, lastOpenedAt: now };
+            set({ game, settings: persisted.settings, isHydrated: true });
+            await saveState(game, persisted.settings);
             return;
         }
 
-        set({ isHydrated: true });
+        const game = createInitialGameState();
+        set({ game, isHydrated: true });
     },
     syncRemote: async (accessToken) => {
         const remote = await fetchInfinityState(accessToken);
@@ -58,7 +67,24 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const previousGame = get().game;
         const settings = get().settings;
         const next = makeMove(previousGame, direction);
-        const updatedGame = next !== previousGame ? next : previousGame;
+        let updatedGame = next !== previousGame ? next : previousGame;
+        const nextLevel = getNextLevel(previousGame.level);
+        const levelConfig = LEVELS[previousGame.level];
+        const withinPromotionWindow =
+            levelConfig.promotionWindowDays === null ||
+            Date.now() - previousGame.levelStartedAt <= levelConfig.promotionWindowDays * 24 * 60 * 60 * 1000;
+        if (
+            updatedGame !== previousGame &&
+            nextLevel &&
+            levelConfig.promotionTile &&
+            updatedGame.maxTile >= levelConfig.promotionTile &&
+            withinPromotionWindow
+        ) {
+            updatedGame = {
+                ...createInitialGameState(nextLevel),
+                bestScore: updatedGame.bestScore,
+            };
+        }
         const preLossSnapshot =
             updatedGame.status === 'over' &&
             previousGame.status === 'playing' &&

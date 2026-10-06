@@ -36,7 +36,7 @@ export async function registerForNotificationsAsync(): Promise<boolean> {
 }
 
 /**
- * Cancels existing inactivity reminders and schedules a new one for 48 hours later.
+ * Cancels existing inactivity reminders and schedules a new one for 24 hours later.
  */
 export async function scheduleInactivityNotification(
     bestScore: number,
@@ -58,7 +58,7 @@ export async function scheduleInactivityNotification(
             },
             trigger: {
                 type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-                seconds: 48 * 60 * 60,
+                seconds: 24 * 60 * 60,
                 repeats: false,
                 channelId: "game-reminders",
             },

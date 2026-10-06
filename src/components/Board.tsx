@@ -17,11 +17,12 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 // Keeps the board large while leaving comfortable margins
 const BOARD_SIZE = Math.min(SCREEN_WIDTH - 32, 430);
 
-const BOARD_PADDING = 10;
-const CELL_GAP = 9;
+const BOARD_PADDING = 8;
+const CELL_GAP = 6;
 
 export function Board({ onSwipe }: BoardProps) {
     const board = useGameStore((state) => state.game.board);
+    const cellRadius = board.length >= 8 ? 7 : board.length >= 5 ? 11 : 18;
 
     const handleGesture = (dx: number, dy: number) => {
         const absDx = Math.abs(dx);
@@ -64,9 +65,9 @@ export function Board({ onSwipe }: BoardProps) {
                             {row.map((cell, colIndex) => (
                                 <View
                                     key={`${rowIndex}-${colIndex}`}
-                                    style={styles.cell}
+                                    style={[styles.cell, { borderRadius: cellRadius }]}
                                 >
-                                    <Tile value={cell} />
+                                    <Tile value={cell} compact={board.length >= 8} />
                                 </View>
                             ))}
                         </View>
@@ -83,7 +84,7 @@ const styles = StyleSheet.create({
         height: BOARD_SIZE,
         alignSelf: 'center',
 
-        borderRadius: 28,
+        borderRadius: 22,
 
         shadowColor: '#000',
         shadowOpacity: 0.18,
@@ -102,7 +103,7 @@ const styles = StyleSheet.create({
 
         padding: BOARD_PADDING,
 
-        borderRadius: 28,
+        borderRadius: 22,
 
         backgroundColor: '#27272A',
 

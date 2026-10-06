@@ -22,6 +22,7 @@ import { ScoreBoard } from "@/components/ScoreBoard";
 import { BannerAdComponent } from "@/components/ads/BannerAdComponent";
 import { rewardedAdManager } from "@/components/ads/RewardedAdManager";
 import { MAX_REWARDED_UNDOS_PER_RUN } from "@/store/gameStore";
+import { LEVELS } from "@/game/levels";
 import AchievementsModal from "@/components/modals/AchievementsModal";
 import { GameOverModal } from "@/components/modals/GameOverModal";
 import { PauseModal } from "@/components/modals/PauseModal";
@@ -154,6 +155,9 @@ export default function GameScreen() {
                         moveCount={game.moveCount}
                         maxTile={game.maxTile}
                     />
+                    <Text style={[styles.levelText, isDark ? styles.darkText : styles.lightText]}>
+                        {LEVELS[game.level].label} · {game.board.length}×{game.board.length}
+                    </Text>
 
                     <Animated.View
                         entering={FadeInDown.delay(80).duration(260)}
@@ -266,6 +270,7 @@ const styles = StyleSheet.create({
     loadingText: { fontSize: 18 },
     lightText: { color: "#0f172a" },
     darkText: { color: "#f8fafc" },
+    levelText: { fontSize: 14, fontWeight: "700", textAlign: "center" },
     boardCard: {
         borderRadius: 24,
         overflow: "hidden",

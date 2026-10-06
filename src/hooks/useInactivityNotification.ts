@@ -6,12 +6,12 @@ export function useInactivityNotification(bestScore: number) {
     const appState = useRef(AppState.currentState);
 
     useEffect(() => {
-        // Schedule initial 48h notification on app load
+        // Schedule an inactivity notification on app load
         if (bestScore > 0) {
             void scheduleInactivityNotification(bestScore);
         }
 
-        // Reset 48h notification whenever player backgrounds the app
+        // Reset the inactivity notification whenever player backgrounds the app
         const subscription = AppState.addEventListener(
             "change",
             (nextAppState: AppStateStatus) => {

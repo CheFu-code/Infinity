@@ -1,13 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getAchievements } from './achievements';
-import { getRandomEmptyCell, pickRandomTileValue } from './random';
+import { LEVELS } from './levels';
 import { applyMove } from './moves';
-import { Achievement, Board, Direction, GameSettings, GameSnapshot, GameState, PersistedState } from './types';
+import { getRandomEmptyCell, pickRandomTileValue } from './random';
+import { Achievement, Board, Direction, GameLevel, GameSettings, GameSnapshot, GameState, PersistedState } from './types';
 
-const BOARD_SIZE = 4;
 const STORAGE_KEY = 'infinity-2048-state';
 
-function createEmptyBoard(size = BOARD_SIZE): Board {
+function createEmptyBoard(size: number): Board {
   return Array.from({ length: size }, () => Array.from({ length: size }, () => null));
 }
 
@@ -45,8 +45,8 @@ function getStatus(snapshot: GameSnapshot): GameState['status'] {
   return 'playing';
 }
 
-export function createInitialGameState(): GameState {
-  const board = createEmptyBoard();
+export function createInitialGameState(level: GameLevel = 'easy', now = Date.now()): GameState {
+  const board = createEmptyBoard(LEVELS[level].boardSize);
   const firstCell = getRandomEmptyCell(board);
 
   if (firstCell) {
@@ -63,6 +63,9 @@ export function createInitialGameState(): GameState {
 
   return {
     ...snapshot,
+    level,
+    levelStartedAt: now,
+    lastOpenedAt: now,
     bestScore: 0,
     history: [],
     achievements: getAchievements(0, false, false, 0, initialMaxTile, false),
@@ -127,6 +130,9 @@ export function restoreSnapshot(state: GameState, snapshot: GameSnapshot): GameS
     over: false,
     status: 'playing',
     history: state.history.slice(1),
+    level: state.level,
+    levelStartedAt: state.levelStartedAt,
+    lastOpenedAt: state.lastOpenedAt,
     bestScore: state.bestScore,
     achievements: getAchievements(
       snapshot.score,
@@ -175,6 +181,9 @@ export function makeMove(state: GameState, direction: Direction): GameState {
 
   return {
     ...snapshot,
+    level: state.level,
+    levelStartedAt: state.levelStartedAt,
+    lastOpenedAt: state.lastOpenedAt,
     bestScore: Math.max(state.bestScore, nextScore),
     // Keep full history to allow unlimited undos (may increase memory usage).
     history: [previous, ...state.history],
@@ -191,6 +200,9 @@ export function undoMove(state: GameState): GameState {
 
   return {
     ...previous,
+    level: state.level,
+    levelStartedAt: state.levelStartedAt,
+    lastOpenedAt: state.lastOpenedAt,
     bestScore: state.bestScore,
     history: state.history.slice(1),
     achievements: getAchievements(previous.score, previous.won, previous.over, previous.moveCount, previous.maxTile, previous.keepPlaying),
@@ -199,7 +211,7 @@ export function undoMove(state: GameState): GameState {
 }
 
 export function restartGame(state: GameState): GameState {
-  const initial = createInitialGameState();
+  const initial = createInitialGameState(state.level);
   return {
     ...initial,
     bestScore: state.bestScore,
@@ -220,11 +232,12 @@ export async function saveState(state: GameState, settings: GameSettings): Promi
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
 }
 
-function isBoard(value: unknown): value is Board {
+function isBoard(value: unknown, expectedSize?: number): value is Board {
   return (
     Array.isArray(value) &&
-    value.length === BOARD_SIZE &&
-    value.every((row) => Array.isArray(row) && row.length === BOARD_SIZE && row.every((cell) => typeof cell === 'number' || cell === null))
+    value.length >= 4 &&
+    (expectedSize === undefined || value.length === expectedSize) &&
+    value.every((row) => Array.isArray(row) && row.length === value.length && row.every((cell) => typeof cell === 'number' || cell === null))
   );
 }
 
@@ -271,10 +284,16 @@ function normalizePersistedState(value: unknown): PersistedState | null {
 
   const game = candidate.game;
   const settings = candidate.settings;
+  const level = game.level ?? 'easy';
+  const levelStartedAt = game.levelStartedAt ?? Date.now();
+  const lastOpenedAt = game.lastOpenedAt ?? Date.now();
 
   if (
     typeof game.score !== 'number' ||
-    !isBoard(game.board) ||
+    (level !== 'easy' && level !== 'medium' && level !== 'hard') ||
+    !isBoard(game.board, LEVELS[level as GameLevel].boardSize) ||
+    typeof levelStartedAt !== 'number' ||
+    typeof lastOpenedAt !== 'number' ||
     typeof game.won !== 'boolean' ||
     typeof game.over !== 'boolean' ||
     typeof game.keepPlaying !== 'boolean' ||
@@ -307,6 +326,9 @@ function normalizePersistedState(value: unknown): PersistedState | null {
     game: {
       ...game,
       achievements,
+      level,
+      levelStartedAt,
+      lastOpenedAt,
     },
     settings: {
       ...settings,

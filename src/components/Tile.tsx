@@ -9,6 +9,7 @@ import Animated, {
 
 interface TileProps {
     value: number | null;
+    compact?: boolean;
 }
 
 type TileTheme = {
@@ -52,7 +53,7 @@ const getFontSize = (value: number) => {
     return 32;
 };
 
-export const Tile = memo(function Tile({ value }: TileProps) {
+export const Tile = memo(function Tile({ value, compact = false }: TileProps) {
     const scale = useSharedValue(1);
     const opacity = useSharedValue(1);
 
@@ -88,7 +89,7 @@ export const Tile = memo(function Tile({ value }: TileProps) {
     }
 
     const theme = getTileTheme(value);
-    const fontSize = getFontSize(value);
+    const fontSize = compact ? Math.min(18, getFontSize(value)) : getFontSize(value);
 
     return (
         <Animated.View
