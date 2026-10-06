@@ -1,5 +1,5 @@
-export function pickRandomTileValue(): number {
-  return Math.random() < 0.9 ? 2 : 4;
+export function pickRandomTileValue(fourTileChance = 0.1): number {
+  return Math.random() < fourTileChance ? 4 : 2;
 }
 
 export function getRandomEmptyCell(board: Array<Array<number | null>>): {x: number; y: number} | null {

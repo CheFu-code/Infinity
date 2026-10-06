@@ -3,12 +3,13 @@ import { GameLevel } from "./types";
 export const LEVELS: Record<GameLevel, {
   label: string;
   boardSize: number;
+  fourTileChance: number;
   promotionTile: number | null;
   promotionWindowDays: number | null;
 }> = {
-  easy: { label: "Easy", boardSize: 4, promotionTile: 512, promotionWindowDays: 7 },
-  medium: { label: "Medium", boardSize: 5, promotionTile: 1024, promotionWindowDays: 14 },
-  hard: { label: "Hard", boardSize: 8, promotionTile: null, promotionWindowDays: null },
+  easy: { label: "Easy", boardSize: 4, fourTileChance: 0.1, promotionTile: 512, promotionWindowDays: 7 },
+  medium: { label: "Medium", boardSize: 4, fourTileChance: 0.15, promotionTile: 1024, promotionWindowDays: 14 },
+  hard: { label: "Hard", boardSize: 4, fourTileChance: 0.25, promotionTile: null, promotionWindowDays: null },
 };
 
 export const LEVEL_ORDER: GameLevel[] = ["easy", "medium", "hard"];

@@ -50,12 +50,12 @@ export function createInitialGameState(level: GameLevel = 'easy', now = Date.now
   const firstCell = getRandomEmptyCell(board);
 
   if (firstCell) {
-    board[firstCell.x][firstCell.y] = pickRandomTileValue();
+    board[firstCell.x][firstCell.y] = pickRandomTileValue(LEVELS[level].fourTileChance);
   }
 
   const secondCell = getRandomEmptyCell(board);
   if (secondCell) {
-    board[secondCell.x][secondCell.y] = pickRandomTileValue();
+    board[secondCell.x][secondCell.y] = pickRandomTileValue(LEVELS[level].fourTileChance);
   }
 
   const initialMaxTile = getMaxTile(board);
@@ -168,7 +168,7 @@ export function makeMove(state: GameState, direction: Direction): GameState {
   const spawnCell = getRandomEmptyCell(nextBoard);
 
   if (spawnCell) {
-    nextBoard[spawnCell.x][spawnCell.y] = pickRandomTileValue();
+    nextBoard[spawnCell.x][spawnCell.y] = pickRandomTileValue(LEVELS[state.level].fourTileChance);
   }
 
   const nextScore = state.score + result.scoreGain;
@@ -291,7 +291,7 @@ function normalizePersistedState(value: unknown): PersistedState | null {
   if (
     typeof game.score !== 'number' ||
     (level !== 'easy' && level !== 'medium' && level !== 'hard') ||
-    !isBoard(game.board, LEVELS[level as GameLevel].boardSize) ||
+    !isBoard(game.board) ||
     typeof levelStartedAt !== 'number' ||
     typeof lastOpenedAt !== 'number' ||
     typeof game.won !== 'boolean' ||
@@ -322,14 +322,22 @@ function normalizePersistedState(value: unknown): PersistedState | null {
     return null;
   }
 
+  const normalizedGame = game.board.length === LEVELS[level].boardSize
+    ? {
+        ...game,
+        achievements,
+        level,
+        levelStartedAt,
+        lastOpenedAt,
+      }
+    : {
+        ...createInitialGameState(level, levelStartedAt),
+        bestScore: game.bestScore,
+        lastOpenedAt,
+      };
+
   return {
-    game: {
-      ...game,
-      achievements,
-      level,
-      levelStartedAt,
-      lastOpenedAt,
-    },
+    game: normalizedGame,
     settings: {
       ...settings,
     },
