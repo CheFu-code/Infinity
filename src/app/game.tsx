@@ -1,4 +1,3 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useMemo, useState } from "react";
 import {
     StyleSheet,
@@ -21,14 +20,14 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 import { ScoreBoard } from "@/components/ScoreBoard";
 import { BannerAdComponent } from "@/components/ads/BannerAdComponent";
 import { rewardedAdManager } from "@/components/ads/RewardedAdManager";
-import { MAX_REWARDED_UNDOS_PER_RUN } from "@/store/gameStore";
-import { LEVELS } from "@/game/levels";
 import AchievementsModal from "@/components/modals/AchievementsModal";
 import { GameOverModal } from "@/components/modals/GameOverModal";
 import { PauseModal } from "@/components/modals/PauseModal";
 import { ProfileModal } from "@/components/modals/ProfileModal";
 import { VictoryModal } from "@/components/modals/VictoryModal";
+import { LEVELS } from "@/game/levels";
 import { useInactivityNotification } from "@/hooks/useInactivityNotification";
+import { MAX_REWARDED_UNDOS_PER_RUN } from "@/store/gameStore";
 import * as Sentry from "@sentry/react-native";
 
 export default function GameScreen() {
@@ -155,9 +154,34 @@ export default function GameScreen() {
                         moveCount={game.moveCount}
                         maxTile={game.maxTile}
                     />
-                    <Text style={[styles.levelText, isDark ? styles.darkText : styles.lightText]}>
-                        {LEVELS[game.level].label} · {game.board.length}×{game.board.length}
-                    </Text>
+                    <View style={styles.levelAchievementsRow}>
+                        <Text style={[styles.levelText, isDark ? styles.darkText : styles.lightText]}>
+                            {LEVELS[game.level].label} · {game.board.length}×{game.board.length}
+                        </Text>
+
+                        <TouchableOpacity
+                            style={[
+                                styles.achievementsButton,
+                                isDark ? styles.buttonDark : styles.buttonLight,
+                            ]}
+                            onPress={() => setAchievementsVisible(true)}
+                            activeOpacity={0.7}
+                        >
+                            <View style={styles.buttonContent}>
+                                
+                                <Text
+                                    style={[
+                                        styles.achievementsButtonText,
+                                        isDark ? styles.darkText : styles.lightText,
+                                    ]}
+                                >
+                                    Achievements (
+                                    {game.achievements.filter((a) => a.unlocked).length}/
+                                    {game.achievements.length})
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
 
                     <Animated.View
                         entering={FadeInDown.delay(80).duration(260)}
@@ -177,32 +201,6 @@ export default function GameScreen() {
                         canUndo={game.history.length > 0}
                     />
 
-                    <TouchableOpacity
-                        style={[
-                            styles.achievementsButton,
-                            isDark ? styles.buttonDark : styles.buttonLight,
-                        ]}
-                        onPress={() => setAchievementsVisible(true)}
-                        activeOpacity={0.7}
-                    >
-                        <View style={styles.buttonContent}>
-                            <Ionicons
-                                name="trophy"
-                                size={18}
-                                color={isDark ? "#f59e0b" : "#d97706"}
-                            />
-                            <Text
-                                style={[
-                                    styles.achievementsButtonText,
-                                    isDark ? styles.darkText : styles.lightText,
-                                ]}
-                            >
-                                Achievements (
-                                {game.achievements.filter((a) => a.unlocked).length}/
-                                {game.achievements.length})
-                            </Text>
-                        </View>
-                    </TouchableOpacity>
                 </View>
 
                 <BannerAdComponent />
@@ -271,6 +269,11 @@ const styles = StyleSheet.create({
     lightText: { color: "#0f172a" },
     darkText: { color: "#f8fafc" },
     levelText: { fontSize: 14, fontWeight: "700", textAlign: "center" },
+    levelAchievementsRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 10,
+    },
     boardCard: {
         borderRadius: 24,
         overflow: "hidden",
@@ -284,6 +287,7 @@ const styles = StyleSheet.create({
     authError: { color: "#dc2626", fontSize: 13, textAlign: "right" },
 
     achievementsButton: {
+        flex: 1,
         paddingVertical: 12,
         paddingHorizontal: 16,
         borderRadius: 14,

@@ -1,1 +1,0 @@
-Place game-specific assets such as icons, splash assets, and sound files in this folder when you are ready to polish the experience.
