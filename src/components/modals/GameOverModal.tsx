@@ -109,15 +109,38 @@ export function GameOverModal({
 
                 <View style={styles.gameOverAction}>
                     {canWatchAd ? (
-                        <>
-                            <Text style={[styles.rewardText, isDark ? styles.darkText : styles.lightText]}>
-                                Watch a short ad to undo your last move ({undoUsesRemaining} undo left)
-                            </Text>
-                            <Button label="Watch ad to undo & continue" onPress={onWatchAd} />
-                        </>
+                        <View
+                            style={[
+                                styles.rewardCard,
+                                isDark ? styles.rewardCardDark : styles.rewardCardLight,
+                            ]}
+                        >
+                            <View style={styles.rewardHeader}>
+                                <View style={styles.rewardBadge}>
+                                    <Ionicons name="play" size={14} color="#ffffff" />
+                                </View>
+                                <View style={styles.rewardCopy}>
+                                    <Text style={[styles.rewardTitle, isDark ? styles.darkText : styles.lightText]}>
+                                        Save this run
+                                    </Text>
+                                    <Text style={[styles.rewardText, isDark ? styles.mutedDarkText : styles.mutedLightText]}>
+                                        Watch a quick video for one more chance.
+                                    </Text>
+                                </View>
+                            </View>
+                            <Button label="Continue" onPress={onWatchAd} />
+                        </View>
                     ) : null}
-                    <Button label="Restart" onPress={onRestart} variant="secondary" />
-                    <Button label="No thanks" onPress={onNoThanks} variant="ghost" themeMode={isDark ? "dark" : "light"} />
+                    <View style={styles.secondaryActions}>
+                        <View style={canWatchAd ? styles.secondaryAction : styles.secondaryActionFull}>
+                            <Button label="Restart" onPress={onRestart} variant="secondary" />
+                        </View>
+                        {canWatchAd ? (
+                            <View style={styles.secondaryAction}>
+                                <Button label="No thanks" onPress={onNoThanks} variant="ghost" themeMode={isDark ? "dark" : "light"} />
+                            </View>
+                        ) : null}
+                    </View>
                 </View>
             </View>
         </Modal>
@@ -155,8 +178,25 @@ const styles = StyleSheet.create({
     },
     gameOverDividerLight: { backgroundColor: "#e2e8f0" },
     gameOverDividerDark: { backgroundColor: "#334155" },
-    gameOverAction: { width: "100%", gap: 10 },
-    rewardText: { fontSize: 13, lineHeight: 19, textAlign: "center" },
+    gameOverAction: { width: "100%", gap: 12 },
+    rewardCard: { width: "100%", borderRadius: 16, padding: 14, gap: 12, borderWidth: 1 },
+    rewardCardLight: { backgroundColor: "#faf5ff", borderColor: "#ddd6fe" },
+    rewardCardDark: { backgroundColor: "#211538", borderColor: "#5b3b88" },
+    rewardHeader: { flexDirection: "row", alignItems: "center", gap: 10 },
+    rewardBadge: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: "#7c3aed",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    rewardCopy: { flex: 1, gap: 2 },
+    rewardTitle: { fontSize: 15, fontWeight: "800" },
+    rewardText: { fontSize: 12, lineHeight: 17 },
+    secondaryActions: { flexDirection: "row", gap: 10 },
+    secondaryAction: { flex: 1 },
+    secondaryActionFull: { width: "100%" },
     lightText: { color: "#0f172a" },
     darkText: { color: "#f8fafc" },
     mutedLightText: { color: "#64748b" },
