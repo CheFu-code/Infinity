@@ -1,16 +1,19 @@
 import * as Haptics from 'expo-haptics';
 import { create } from 'zustand';
-import { clearProgress, createDefaultSettings, createInitialGameState, keepPlaying, loadState, makeMove, restartGame, saveState, undoMove } from '../game/engine';
-import { Direction, GameSettings, GameState } from '../game/types';
+import { clearProgress, createDefaultSettings, createInitialGameState, keepPlaying, loadState, makeMove, restartGame, restoreSnapshot, saveState, undoMove } from '../game/engine';
+import { Direction, GameSettings, GameSnapshot, GameState } from '../game/types';
 import { playMergeSound, playWinSound } from '../utils/audio';
 import { fetchInfinityState, saveInfinityState } from '../lib/infinityAuth';
+
+export const MAX_REWARDED_UNDOS_PER_RUN = 1;
+export const MIN_REWARDED_UNDO_SCORE = 100;
 
 interface GameStore {
     game: GameState;
     settings: GameSettings;
     isHydrated: boolean;
-    undoPressCount: number;
-    showRewardedAd: boolean;
+    rewardedUndoUses: number;
+    preLossSnapshot?: GameSnapshot;
     accessToken?: string;
     initialize: () => Promise<void>;
     move: (direction: Direction) => void;
@@ -21,8 +24,7 @@ interface GameStore {
     toggleVibration: () => void;
     setTheme: (theme: GameSettings['theme']) => void;
     resetProgress: () => Promise<void>;
-    resetUndoCount: () => void;
-    dismissRewardedAd: () => void;
+    useRewardedUndo: () => void;
     syncRemote: (accessToken: string) => Promise<void>;
 }
 
@@ -30,8 +32,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     game: createInitialGameState(),
     settings: createDefaultSettings(),
     isHydrated: false,
-    undoPressCount: 0,
-    showRewardedAd: false,
+    rewardedUndoUses: 0,
     accessToken: undefined as string | undefined,
     initialize: async () => {
         const persisted = await loadState();
@@ -58,7 +59,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const settings = get().settings;
         const next = makeMove(previousGame, direction);
         const updatedGame = next !== previousGame ? next : previousGame;
-        set({ game: updatedGame, undoPressCount: 0 }); // Reset undo count on move
+        const preLossSnapshot =
+            updatedGame.status === 'over' &&
+            previousGame.status === 'playing' &&
+            previousGame.score >= MIN_REWARDED_UNDO_SCORE &&
+            get().rewardedUndoUses < MAX_REWARDED_UNDOS_PER_RUN
+                ? updatedGame.history[0]
+                : get().preLossSnapshot;
+        set({ game: updatedGame, preLossSnapshot });
 
         if (updatedGame.score > previousGame.score && settings.soundEnabled) {
             void playMergeSound();
@@ -77,21 +85,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
     },
     undo: () => {
         const next = undoMove(get().game);
-        const newUndoCount = get().undoPressCount + 1;
-        
-        set({ game: next, undoPressCount: newUndoCount });
-        
-        // Show rewarded ad after 3 undo presses
-        if (newUndoCount > 3 && !get().showRewardedAd) {
-            set({ showRewardedAd: true });
-        }
-        
+        set({ game: next });
+
         void saveState(next, get().settings);
         if (get().accessToken) void saveInfinityState(get().accessToken!, { game: next, settings: get().settings });
     },
     restart: () => {
         const next = restartGame(get().game);
-        set({ game: next, undoPressCount: 0 }); // Reset undo count on restart
+        set({ game: next, rewardedUndoUses: 0, preLossSnapshot: undefined });
         void saveState(next, get().settings);
         if (get().accessToken) void saveInfinityState(get().accessToken!, { game: next, settings: get().settings });
     },
@@ -119,12 +120,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
     resetProgress: async () => {
         await clearProgress();
         const initial = createInitialGameState();
-        set({ game: initial, undoPressCount: 0 });
+        set({ game: initial, rewardedUndoUses: 0, preLossSnapshot: undefined });
     },
-    resetUndoCount: () => {
-        set({ undoPressCount: 0 });
-    },
-    dismissRewardedAd: () => {
-        set({ showRewardedAd: false });
+    useRewardedUndo: () => {
+        const { game, preLossSnapshot, rewardedUndoUses } = get();
+        if (!preLossSnapshot || rewardedUndoUses >= MAX_REWARDED_UNDOS_PER_RUN) {
+            return;
+        }
+
+        const next = restoreSnapshot(game, preLossSnapshot);
+        set({
+            game: next,
+            rewardedUndoUses: rewardedUndoUses + 1,
+            preLossSnapshot: undefined,
+        });
+        void saveState(next, get().settings);
+        if (get().accessToken) void saveInfinityState(get().accessToken!, { game: next, settings: get().settings });
     },
 }));

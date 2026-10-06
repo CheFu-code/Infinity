@@ -105,6 +105,39 @@ function hasAvailableMoves(board: Board): boolean {
 
   return false;
 }
+
+export function restoreSnapshot(state: GameState, snapshot: GameSnapshot): GameState {
+  const board = cloneBoard(snapshot.board);
+  if (!hasAvailableMoves(board)) {
+    outer: for (let row = 0; row < board.length; row += 1) {
+      for (let col = 0; col < board[row].length; col += 1) {
+        if (board[row][col] !== null) {
+          board[row][col] = null;
+          break outer;
+        }
+      }
+    }
+  }
+
+  const maxTile = getMaxTile(board);
+  return {
+    ...snapshot,
+    board,
+    maxTile,
+    over: false,
+    status: 'playing',
+    history: state.history.slice(1),
+    bestScore: state.bestScore,
+    achievements: getAchievements(
+      snapshot.score,
+      snapshot.won,
+      false,
+      snapshot.moveCount,
+      maxTile,
+      snapshot.keepPlaying,
+    ),
+  };
+}
 export function makeMove(state: GameState, direction: Direction): GameState {
   if (state.won && !state.keepPlaying) {
     return state;

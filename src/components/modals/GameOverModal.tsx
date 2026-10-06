@@ -9,6 +9,10 @@ type Props = {
     score: number;
     maxTile: number;
     onRestart: () => void;
+    onNoThanks: () => void;
+    onWatchAd: () => void;
+    canWatchAd: boolean;
+    undoUsesRemaining: number;
 };
 
 export function GameOverModal({
@@ -17,6 +21,10 @@ export function GameOverModal({
     score,
     maxTile,
     onRestart,
+    onNoThanks,
+    onWatchAd,
+    canWatchAd,
+    undoUsesRemaining,
 }: Props) {
     const isDark = theme === "dark";
 
@@ -100,7 +108,16 @@ export function GameOverModal({
                 </View>
 
                 <View style={styles.gameOverAction}>
-                    <Button label="Play again" onPress={onRestart} />
+                    {canWatchAd ? (
+                        <>
+                            <Text style={[styles.rewardText, isDark ? styles.darkText : styles.lightText]}>
+                                Watch a short ad to undo your last move ({undoUsesRemaining} undo left)
+                            </Text>
+                            <Button label="Watch ad to undo & continue" onPress={onWatchAd} />
+                        </>
+                    ) : null}
+                    <Button label="Restart" onPress={onRestart} variant="secondary" />
+                    <Button label="No thanks" onPress={onNoThanks} variant="ghost" themeMode={isDark ? "dark" : "light"} />
                 </View>
             </View>
         </Modal>
@@ -138,7 +155,8 @@ const styles = StyleSheet.create({
     },
     gameOverDividerLight: { backgroundColor: "#e2e8f0" },
     gameOverDividerDark: { backgroundColor: "#334155" },
-    gameOverAction: { width: "100%" },
+    gameOverAction: { width: "100%", gap: 10 },
+    rewardText: { fontSize: 13, lineHeight: 19, textAlign: "center" },
     lightText: { color: "#0f172a" },
     darkText: { color: "#f8fafc" },
     mutedLightText: { color: "#64748b" },

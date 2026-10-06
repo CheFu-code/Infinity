@@ -20,16 +20,19 @@ import { GameHeader } from "@/components/GameHeader";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ScoreBoard } from "@/components/ScoreBoard";
 import { BannerAdComponent } from "@/components/ads/BannerAdComponent";
+import { rewardedAdManager } from "@/components/ads/RewardedAdManager";
+import { MAX_REWARDED_UNDOS_PER_RUN } from "@/store/gameStore";
 import AchievementsModal from "@/components/modals/AchievementsModal";
 import { GameOverModal } from "@/components/modals/GameOverModal";
 import { PauseModal } from "@/components/modals/PauseModal";
 import { ProfileModal } from "@/components/modals/ProfileModal";
 import { VictoryModal } from "@/components/modals/VictoryModal";
 import { useInactivityNotification } from "@/hooks/useInactivityNotification";
+import * as Sentry from "@sentry/react-native";
 
 export default function GameScreen() {
     const colorScheme = useColorScheme();
-    const { game, settings, isHydrated, move, undo, restart, continueAfterWin } =
+    const { game, settings, isHydrated, move, undo, restart, continueAfterWin, rewardedUndoUses, preLossSnapshot } =
         useGame();
     const { session, isChecking, signIn, signOut } = useInfinityAuth();
     useInactivityNotification(game.bestScore);
@@ -39,6 +42,14 @@ export default function GameScreen() {
     const [achievementsVisible, setAchievementsVisible] = useState(false);
     const [authBusy, setAuthBusy] = useState(false);
     const [authError, setAuthError] = useState("");
+    const [rewardedAdLoaded, setRewardedAdLoaded] = useState(false);
+    const [rewardedAdShowing, setRewardedAdShowing] = useState(false);
+
+    useEffect(() => {
+        const unsubscribe = rewardedAdManager.subscribe(setRewardedAdLoaded);
+        rewardedAdManager.preload();
+        return unsubscribe;
+    }, []);
 
     const resolvedTheme = useMemo(() => {
         if (settings.theme === "system") {
@@ -48,6 +59,36 @@ export default function GameScreen() {
     }, [colorScheme, settings.theme]);
 
     const isDark = resolvedTheme === "dark";
+    const rewardedUndoEligible =
+        game.status === "over" &&
+        Boolean(preLossSnapshot) &&
+        rewardedUndoUses < MAX_REWARDED_UNDOS_PER_RUN;
+    const canOfferRewardedUndo =
+        rewardedUndoEligible && rewardedAdLoaded && !rewardedAdShowing;
+
+    useEffect(() => {
+        if (rewardedUndoEligible) {
+            Sentry.captureMessage("Rewarded undo offer shown", "info");
+        }
+    }, [rewardedUndoEligible]);
+
+    const handleWatchAd = () => {
+        if (!canOfferRewardedUndo || rewardedAdShowing) {
+            return;
+        }
+        setRewardedAdShowing(true);
+        const shown = rewardedAdManager.show({
+            onReward: () => {
+                useGameStore.getState().useRewardedUndo();
+            },
+            onFinished: () => {
+                setRewardedAdShowing(false);
+            },
+        });
+        if (!shown) {
+            setRewardedAdShowing(false);
+        }
+    };
 
     useEffect(() => {
         if (isHydrated && session) {
@@ -183,6 +224,10 @@ export default function GameScreen() {
                 score={game.score}
                 maxTile={game.maxTile}
                 onRestart={restart}
+                onNoThanks={() => undefined}
+                onWatchAd={handleWatchAd}
+                canWatchAd={canOfferRewardedUndo}
+                undoUsesRemaining={MAX_REWARDED_UNDOS_PER_RUN - rewardedUndoUses}
             />
 
             <PauseModal
