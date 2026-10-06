@@ -1,33 +1,38 @@
+import * as Sentry from '@sentry/react-native';
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 
-// Configure the audio session once at module load time.
-// Without this, expo-audio is muted by default on iOS (silent-ring switch)
-// and may not play at all on Android without an active audio focus.
-setAudioModeAsync({ playsInSilentMode: true }).catch(() => {
-    // non-fatal: device may not support the call
+const audioReady = setAudioModeAsync({
+    playsInSilentMode: true,
+    shouldPlayInBackground: false,
+    interruptionMode: 'mixWithOthers',
+}).catch((error) => {
+    Sentry.captureException(error, {
+        extra: { context: 'Failed to configure game audio' },
+    });
 });
 
-// Pre-create players so they are ready immediately when a move fires.
-// expo-audio players are native objects — instantiating one per sound call
-// leads to leaks and race conditions where the object is released before
-// the audio engine can schedule playback.
 const mergePlayer = createAudioPlayer(require('../assets/merge.wav'));
 const winPlayer = createAudioPlayer(require('../assets/win.wav'));
 
-function playPlayer(player: ReturnType<typeof createAudioPlayer>): void {
+async function playPlayer(player: ReturnType<typeof createAudioPlayer>): Promise<void> {
     try {
-        // Seek to start before playing so rapid re-triggers work correctly.
+        await audioReady;
         player.seekTo(0);
         player.play();
-    } catch {
-        // Ignore audio failures silently.
+    } catch (error) {
+        Sentry.captureException(error, {
+            extra: {
+                context: 'Failed to play game sound',
+                loaded: player.isLoaded,
+            },
+        });
     }
 }
 
-export function playMergeSound(): void {
-    playPlayer(mergePlayer);
+export async function playMergeSound(): Promise<void> {
+    await playPlayer(mergePlayer);
 }
 
-export function playWinSound(): void {
-    playPlayer(winPlayer);
+export async function playWinSound(): Promise<void> {
+    await playPlayer(winPlayer);
 }
