@@ -4,7 +4,6 @@ import { clearProgress, createDefaultSettings, createInitialGameState, keepPlayi
 import { Direction, GameSettings, GameSnapshot, GameState } from '../game/types';
 import { APP_INACTIVITY_DEMOTION_MS, getNextLevel, getPreviousLevel, LEVELS } from '../game/levels';
 import { playMergeSound, playWinSound } from '../utils/audio';
-import { fetchInfinityState, saveInfinityState } from '../lib/infinityAuth';
 
 export const MAX_REWARDED_UNDOS_PER_RUN = 1;
 export const MIN_REWARDED_UNDO_SCORE = 100;
@@ -15,7 +14,6 @@ interface GameStore {
     isHydrated: boolean;
     rewardedUndoUses: number;
     preLossSnapshot?: GameSnapshot;
-    accessToken?: string;
     initialize: () => Promise<void>;
     move: (direction: Direction) => void;
     undo: () => void;
@@ -26,7 +24,6 @@ interface GameStore {
     setTheme: (theme: GameSettings['theme']) => void;
     resetProgress: () => Promise<void>;
     useRewardedUndo: () => void;
-    syncRemote: (accessToken: string) => Promise<void>;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -34,7 +31,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
     settings: createDefaultSettings(),
     isHydrated: false,
     rewardedUndoUses: 0,
-    accessToken: undefined as string | undefined,
     initialize: async () => {
         const persisted = await loadState();
         if (persisted) {
@@ -51,17 +47,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         const game = createInitialGameState();
         set({ game, isHydrated: true });
-    },
-    syncRemote: async (accessToken) => {
-        const remote = await fetchInfinityState(accessToken);
-        const local = { game: get().game, settings: get().settings };
-        set({ accessToken });
-        if (remote) {
-            set({ game: remote.game, settings: remote.settings });
-            await saveState(remote.game, remote.settings);
-        } else {
-            await saveInfinityState(accessToken, local);
-        }
     },
     move: (direction) => {
         const previousGame = get().game;
@@ -107,26 +92,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }
 
         void saveState(updatedGame, settings);
-        if (get().accessToken) void saveInfinityState(get().accessToken!, { game: updatedGame, settings });
     },
     undo: () => {
         const next = undoMove(get().game);
         set({ game: next });
 
         void saveState(next, get().settings);
-        if (get().accessToken) void saveInfinityState(get().accessToken!, { game: next, settings: get().settings });
     },
     restart: () => {
         const next = restartGame(get().game);
         set({ game: next, rewardedUndoUses: 0, preLossSnapshot: undefined });
         void saveState(next, get().settings);
-        if (get().accessToken) void saveInfinityState(get().accessToken!, { game: next, settings: get().settings });
     },
     continueAfterWin: () => {
         const next = keepPlaying(get().game);
         set({ game: next });
         void saveState(next, get().settings);
-        if (get().accessToken) void saveInfinityState(get().accessToken!, { game: next, settings: get().settings });
     },
     toggleSound: () => {
         const settings = { ...get().settings, soundEnabled: !get().settings.soundEnabled };
@@ -161,6 +142,5 @@ export const useGameStore = create<GameStore>((set, get) => ({
             preLossSnapshot: undefined,
         });
         void saveState(next, get().settings);
-        if (get().accessToken) void saveInfinityState(get().accessToken!, { game: next, settings: get().settings });
     },
 }));

@@ -10,7 +10,6 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useGame } from "@/hooks/useGame";
-import { useInfinityAuth } from "@/hooks/useInfinityAuth";
 import { useGameStore } from "@/store/gameStore";
 
 import { Board } from "@/components/Board";
@@ -23,7 +22,6 @@ import { rewardedAdManager } from "@/components/ads/RewardedAdManager";
 import AchievementsModal from "@/components/modals/AchievementsModal";
 import { GameOverModal } from "@/components/modals/GameOverModal";
 import { PauseModal } from "@/components/modals/PauseModal";
-import { ProfileModal } from "@/components/modals/ProfileModal";
 import { VictoryModal } from "@/components/modals/VictoryModal";
 import { LEVELS } from "@/game/levels";
 import { useInactivityNotification } from "@/hooks/useInactivityNotification";
@@ -34,14 +32,10 @@ export default function GameScreen() {
     const colorScheme = useColorScheme();
     const { game, settings, isHydrated, move, undo, restart, continueAfterWin, rewardedUndoUses, preLossSnapshot } =
         useGame();
-    const { session, isChecking, signIn, signOut } = useInfinityAuth();
     useInactivityNotification(game.bestScore);
 
     const [paused, setPaused] = useState(false);
-    const [profileVisible, setProfileVisible] = useState(false);
     const [achievementsVisible, setAchievementsVisible] = useState(false);
-    const [authBusy, setAuthBusy] = useState(false);
-    const [authError, setAuthError] = useState("");
     const [rewardedAdLoaded, setRewardedAdLoaded] = useState(false);
     const [rewardedAdShowing, setRewardedAdShowing] = useState(false);
 
@@ -90,39 +84,6 @@ export default function GameScreen() {
         }
     };
 
-    useEffect(() => {
-        if (isHydrated && session) {
-            void useGameStore
-                .getState()
-                .syncRemote(session.accessToken)
-                .catch(() => undefined);
-        }
-    }, [isHydrated, session]);
-
-    const handleLogin = async () => {
-        setAuthError("");
-        setAuthBusy(true);
-        try {
-            await signIn();
-        } catch (error) {
-            setAuthError(
-                error instanceof Error
-                    ? error.message
-                    : "Sign in could not be completed.",
-            );
-        } finally {
-            setAuthBusy(false);
-        }
-    };
-
-    const handleSignOut = async () => {
-        setAuthBusy(true);
-        await signOut();
-        useGameStore.setState({ accessToken: undefined });
-        setProfileVisible(false);
-        setAuthBusy(false);
-    };
-
     if (!isHydrated) {
         return <LoadingScreen isDark={isDark} />;
     }
@@ -139,14 +100,7 @@ export default function GameScreen() {
                 <View style={styles.container}>
                     <GameHeader
                         isDark={isDark}
-                        session={session}
-                        authBusy={authBusy}
-                        isChecking={isChecking}
-                        onLogin={handleLogin}
-                        onOpenProfile={() => setProfileVisible(true)}
                     />
-
-                    {authError ? <Text style={styles.authError}>{authError}</Text> : null}
 
                     <ScoreBoard
                         score={game.score}
@@ -238,14 +192,6 @@ export default function GameScreen() {
                 onResume={() => setPaused(false)}
             />
 
-            <ProfileModal
-                visible={profileVisible}
-                theme={resolvedTheme}
-                session={session}
-                authBusy={authBusy}
-                onClose={() => setProfileVisible(false)}
-                onSignOut={handleSignOut}
-            />
         </SafeAreaView>
     );
 }
@@ -284,8 +230,6 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 6 },
         elevation: 6,
     },
-    authError: { color: "#dc2626", fontSize: 13, textAlign: "right" },
-
     achievementsButton: {
         flex: 1,
         paddingVertical: 12,
