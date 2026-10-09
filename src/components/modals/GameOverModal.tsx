@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Modal } from "./Modal";
+import { StyleSheet, Text, View } from "react-native";
 import { Button } from "../Button";
+import { Modal } from "./Modal";
 
 type Props = {
     visible: boolean;
@@ -37,15 +37,6 @@ export function GameOverModal({
             theme={theme}
         >
             <View style={styles.gameOverContent}>
-                <View
-                    style={[
-                        styles.gameOverIcon,
-                        isDark ? styles.gameOverIconDark : styles.gameOverIconLight,
-                    ]}
-                >
-                    <Ionicons name="refresh-outline" size={30} color="#7c3aed" />
-                </View>
-
                 <Text
                     style={[
                         styles.gameOverText,
