@@ -63,7 +63,6 @@ function RootLayout() {
         if (canRequestAds) {
           await mobileAds().initialize();
 
-          Sentry.captureMessage("AdMob initialized successfully", "info");
         }
       } catch (error) {
         Sentry.withScope((scope) => {

@@ -42,13 +42,11 @@ class RewardedAdManager {
             requestNonPersonalizedAdsOnly: true,
         });
         this.ad = ad;
-        Sentry.captureMessage("Rewarded ad load started", "info");
         this.adUnsubscribers = [
             ad.addAdEventListener(RewardedAdEventType.LOADED, () => {
                 this.loadAttempt = 0;
                 this.isLoaded = true;
                 this.notify(true);
-                Sentry.captureMessage("Rewarded ad loaded", "info");
             }),
             ad.addAdEventListener(AdEventType.ERROR, (error) => {
                 this.finishAd();
@@ -72,7 +70,6 @@ class RewardedAdManager {
         this.isShowing = true;
         this.isLoaded = false;
         this.showCallbacks = callbacks;
-        Sentry.captureMessage("Rewarded ad button tapped", "info");
         this.adUnsubscribers.forEach((unsubscribe) => unsubscribe());
         this.adUnsubscribers = [
             ad.addAdEventListener(RewardedAdEventType.EARNED_REWARD, () => {

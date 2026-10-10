@@ -143,7 +143,11 @@ export function GameOverModal({
                 </View>
               </View>
             </View>
-          ) : null}
+          ) : (
+            <View style={styles.secondaryActionFull}>
+              <Button label="Restart" onPress={onRestart} />
+            </View>
+          )}
         </View>
       </View>
     </Modal>
